@@ -1,10 +1,11 @@
 import numpy as np
-import pandas as pd
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 import os
+from . import data, style
+from .plot import xyplot
 
-def plotdata(dataset,fig_name,case_path=os.getcwd(),**plotargs):#xlabel='Distance (nm)',ylabel='Load (mN)'):
+def plotdata(dataset,fig_name,case_path=os.getcwd(),**plotargs):
     params = {'font.family':'sans-serif','font.sans-serif':'Arial','font.style':'normal','font.weight':'normal','font.size':6}
     rcParams.update(params)
     color_dict = {'grey':'#6c6c6c','red':'#c82f27','yellow':'#d99f42','green':'#63b84e','cyan':'#58a7a2','blue':'#4064af','purple':'#673695','violet':'#b83c7d','orange':'#a2462d','grass':'#8f9b47','dgreen':'#446e53','lblue':'#508090','mblue':'#3c3f8b','mpurple':'#823a7e'}
@@ -33,6 +34,28 @@ def plotdata(dataset,fig_name,case_path=os.getcwd(),**plotargs):#xlabel='Distanc
 
     fig.savefig(case_path+'/'+fig_name+'.png',dpi=300)
     plt.close(fig)
+
+def load_plot(a:xyplot, **plotargs):
+    rcParams.update(a.style.params)
+    color_list = list(a.style.color_dict.keys())
+    fig, ax = plt.subplots(figsize=(3.5,3))
+    for idno,idata in enumerate(a.dataset):
+        if idata.plottype == 'mark':
+            ax.plot(idata.x, idata.y, a.style.markers[idno], markerfacecolor="None", markeredgecolor = a.style.color_dict[color_list[idno]], markeredgewidth=0.5, markersize = 4, label = idata.label)
+        elif idata.plottype == 'line':
+            ax.plot(idata.x, idata.y, '-', color = a.style.color_dict[color_list[idno]], label = idata.label)
+        elif idata.plottype == 'dash':
+            ax.plot(idata.x, idata.y, linestyle='dashed', color = a.style.color_dict[color_list[idno]], label = idata.label)
+        else:
+            break
+    ax.legend(frameon=False)
+    ax.tick_params(direction="in")
+    if plotargs!={}:
+        ax = plotargs_apply(ax,plotargs)
+    return fig, ax
+
+def show_plot(fig, ax):
+    plt.show()
 
 def plotargs_apply(ax,plotargs):
     if 'xlabel' in plotargs.keys():
