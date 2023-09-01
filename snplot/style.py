@@ -1,10 +1,11 @@
 class style:
     def __init__(self) -> None:
+        self.name = ''
         self.params = {
             'font.family': None,
             'font.style': None,
             'font.weight':'normal',
-            'font.size':6
+            'font.size':2.
         }
         self.color_dict = {}
         self.markers = []
@@ -20,7 +21,7 @@ class style_default(style):
             'font.sans-serif':'Arial',
             'font.style':'normal',
             'font.weight':'normal',
-            'font.size':6
+            'font.size': 0.35
         }
         color_dict = {
             'grey':'#6c6c6c',
@@ -40,3 +41,4 @@ class style_default(style):
         }
         markers = ['o','v','D','p','s','.','^','*','O','>']
         super().__init__(params, color_dict, markers)
+        self.name = 'default'
