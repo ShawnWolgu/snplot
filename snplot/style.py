@@ -18,10 +18,14 @@ class style_default(style):
     def __init__(self) -> None:
         params = {
             'font.family':'sans-serif',
-            'font.sans-serif':'Arial',
+            'font.sans-serif':'Helvetica',
             'font.style':'normal',
             'font.weight':'normal',
-            'font.size': 0.35
+            'font.size': 2.5,
+            'lines.markerfacecolor':'None',
+            'lines.markeredgewidth':0.2,
+            'legend.fontsize':2.0,
+            'legend.fancybox': False,
         }
         color_dict = {
             'grey':'#6c6c6c',
