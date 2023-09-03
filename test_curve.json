@@ -3,11 +3,11 @@
     "ylabel": "stress(MPa)",
     "xlim": [
         0.0,
-        0.1
+        0.025
     ],
     "ylim": [
         0.0,
-        250.0
+        155.0
     ],
     "xscale": "linear",
     "yscale": "linear",
@@ -15,13 +15,13 @@
     "yticks": 50.0,
     "style": "default",
     "rcparams": {
-        "legend.loc": "best",
-        "legend.frameon": true,
+        "legend.loc": "lower right",
+        "legend.frameon": false,
         "legend.framealpha": 0.5,
-        "legend.edgecolor": "black",
+        "legend.edgecolor": "green",
         "figure.figsize": [
-            7,
-            6
+            7.28,
+            6.18
         ],
         "lines.markersize": 1.6,
         "lines.linewidth": 0.37
