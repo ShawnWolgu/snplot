@@ -60,6 +60,11 @@ class xyplot:
             elif idata.plottype == 'linemark':
                 ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label)
                 ax.plot(idata.lx, idata.ly, '-', color = cd[color_list[id]])
+            elif idata.plottype == 'mark_errorbar':
+                ewidth = 0.5*rcParams['lines.linewidth']
+                capsize =0.4*rcParams['lines.markersize']
+                ax.errorbar(idata.x, idata.y, idata.yerr, fmt = 'none', ecolor=cd[color_list[id]], elinewidth=ewidth, capsize = capsize,label = idata.label, barsabove=False)
+                ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label, markerfacecolor='white')
             else:
                 break
         ax.legend(frameon=False)

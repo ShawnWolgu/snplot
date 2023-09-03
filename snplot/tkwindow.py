@@ -129,4 +129,5 @@ class tkwindow:
         canvas.get_tk_widget().pack()
 
     def start(self):
+        self.update_plot()
         self.window.mainloop()
