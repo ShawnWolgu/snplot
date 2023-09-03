@@ -128,5 +128,5 @@ class tkwindow:
         canvas.draw()
         canvas.get_tk_widget().pack()
 
-    def mainloop(self):
+    def start(self):
         self.window.mainloop()

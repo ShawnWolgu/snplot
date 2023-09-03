@@ -38,3 +38,14 @@ class dashdata(xydata):
         super().__init__(x_, y_, label)
         self.plottype = 'dash'
 
+class linemarkdata(markdata):
+    def __init__(self, x_, y_, lx_, ly_, label:str, interval:int=1):
+        super().__init__(x_, y_, label, interval)
+        self._lx = np.array(lx_)
+        self._ly = np.array(ly_)
+        self.lx = self._lx
+        self.ly = self._ly
+        self.plottype = 'linemark'
+    def interpolate(self, interval:float):
+        self.x, self.y = interpolate_data(self._x, self._y, interval)
+        self.lx, self.ly = interpolate_data(self._lx, self._ly, interval)

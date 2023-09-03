@@ -2,6 +2,7 @@ from . import data
 from .style import *
 from .snplot import plotargs_apply
 from .function import rcparams_scale, convert_config
+from .tkwindow import tkwindow
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from copy import deepcopy
@@ -56,6 +57,9 @@ class xyplot:
                 ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]], label = idata.label)
             elif idata.plottype == 'dash':
                 ax.plot(idata.x, idata.y, linestyle='dashed', color = cd[color_list[id]], label = idata.label)
+            elif idata.plottype == 'linemark':
+                ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label)
+                ax.plot(idata.lx, idata.ly, '-', color = cd[color_list[id]])
             else:
                 break
         ax.legend(frameon=False)
@@ -70,6 +74,9 @@ class xyplot:
 
     def show_only(self):
         plt.show()
+
+    def show_tk(self):
+        tkwindow(self).start()
 
     def set_fig_name(self, name:str):
         self.fig_name = name

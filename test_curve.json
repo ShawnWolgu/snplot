@@ -1,29 +1,29 @@
 {
-    "xlabel": "strain",
-    "ylabel": "stress(MPa)",
+    "xlabel": "",
+    "ylabel": "",
     "xlim": [
         0.0,
-        0.025
+        0.252
     ],
     "ylim": [
         0.0,
-        155.0
+        250.449066
     ],
     "xscale": "linear",
     "yscale": "linear",
-    "xticks": 0.02,
-    "yticks": 50.0,
+    "xticks": 0.1,
+    "yticks": 84.0,
     "style": "default",
     "rcparams": {
-        "legend.loc": "lower right",
-        "legend.frameon": false,
+        "legend.loc": "upper right",
+        "legend.frameon": true,
         "legend.framealpha": 0.5,
-        "legend.edgecolor": "green",
+        "legend.edgecolor": "black",
         "figure.figsize": [
-            7.28,
-            6.18
+            7,
+            6
         ],
-        "lines.markersize": 1.6,
-        "lines.linewidth": 0.37
+        "lines.markersize": 1.336,
+        "lines.linewidth": 0.265
     }
 }
