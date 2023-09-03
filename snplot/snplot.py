@@ -33,40 +33,6 @@ def plotdata(dataset,fig_name,case_path=os.getcwd(),**plotargs):
     fig.savefig(case_path+'/'+fig_name+'.png',dpi=300)
     plt.close(fig)
 
-def load_plot(a, **plotargs):
-    try:
-        plt.close(a.fig)
-    except:
-        pass
-    scale = 6
-    mark_plotargs = {
-        'markerfacecolor' : 'None',
-        'markeredgewidth' : 0.2 * scale,
-        'markersize' : 0.8 * scale
-    }
-    mark_plotargs.update(plotargs['mark_plotargs'] if 'mark_plotargs' in plotargs.keys() else {})
-    a.style.params['font.size'] *= scale
-    rcParams.update(a.style.params)
-    color_list = list(a.style.color_dict.keys())
-    fig, ax = plt.subplots(figsize=(scale*1.1, scale))
-    for idno,idata in enumerate(a.dataset):
-        if idata.plottype == 'mark':
-            ax.plot(idata.x, idata.y, a.style.markers[idno], markeredgecolor = a.style.color_dict[color_list[idno]], label = idata.label, **mark_plotargs)
-        elif idata.plottype == 'line':
-            ax.plot(idata.x, idata.y, '-', color = a.style.color_dict[color_list[idno]], label = idata.label)
-        elif idata.plottype == 'dash':
-            ax.plot(idata.x, idata.y, linestyle='dashed', color = a.style.color_dict[color_list[idno]], label = idata.label)
-        else:
-            break
-    ax.legend(frameon=False)
-    ax.tick_params(direction="in")
-    if plotargs!={}:
-        ax = plotargs_apply(ax,plotargs)
-    return fig, ax
-
-def show_plot(fig, ax):
-    plt.show()
-
 def plotargs_apply(ax,plotargs):
     if 'xlabel' in plotargs.keys():
         ax.set_xlabel(plotargs['xlabel'])
