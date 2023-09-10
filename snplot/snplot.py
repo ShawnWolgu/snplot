@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import rcParams
+from matplotlib import ticker
 import matplotlib.pyplot as plt
 import os
 
@@ -43,9 +44,15 @@ def plotargs_apply(ax,plotargs):
     if 'ylim' in plotargs.keys():
         ax.set_ylim(plotargs['ylim'])
     if 'xticks' in plotargs.keys():
-        ax.set_xticks(np.arange(ax.get_xticks().min(),ax.get_xticks().max()+plotargs['xticks'],plotargs['xticks']))
+        if plotargs['xscale'] == 'log':
+            pass
+        else:
+            ax.set_xticks(np.arange(ax.get_xticks().min(),ax.get_xticks().max()+plotargs['xticks'],plotargs['xticks']))
     if 'yticks' in plotargs.keys():
-        ax.set_yticks(np.arange(ax.get_yticks().min(),ax.get_yticks().max()+plotargs['yticks'],plotargs['yticks']))
+        if plotargs['yscale'] == 'log':
+            pass
+        else:
+            ax.set_yticks(np.arange(ax.get_yticks().min(),ax.get_yticks().max()+plotargs['yticks'],plotargs['yticks']))
     if 'legendloc' in plotargs.keys():
         ax.legend(loc=plotargs['legendloc'])
     if 'xscale' in plotargs.keys():
