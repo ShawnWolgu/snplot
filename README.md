@@ -12,3 +12,4 @@ A python code to draw figures in scientific papers. Based on self plotting habit
 - support a simple interactive UI based on custom_tkinter
 - support line mark data
 - support mark data with errorbar
+- Add config save and load buttons in UI
