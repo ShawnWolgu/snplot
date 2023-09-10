@@ -18,6 +18,7 @@ class tkwindow:
         self.plot_obj = plot_obj
         self.arg_dict = deepcopy({**plot_obj.plotargs, **plot_obj.rc_params})
         self.controllers = self.create_controllers()
+        self.create_config_buttons()
 
     def create_controllers(self):
         controllers = {}
@@ -97,6 +98,11 @@ class tkwindow:
         messagebox.showwarning("Unsupported Type", f"Type not supported for key: {key}")
         return None
 
+    def refresh_controllers(self):
+        for _, controller in self.controllers.items():
+            controller.destroy()
+        self.controllers = self.create_controllers()
+
     def update_dict_entry(self, key, value):
         print(f"Updating {key} to {value}")
         if key in self.arg_dict.keys():
@@ -113,6 +119,22 @@ class tkwindow:
         else:
             messagebox.showwarning("Key Error", f"Key not found: {key}")
         self.plot_obj.export_config("./test_curve.json")
+        self.update_plot()
+
+    def create_config_buttons(self):
+        max_row = max([controller.grid_info()["row"] for controller in self.controllers.values()])
+        self.read_config_button = ctk.CTkButton(self.controllers_frame, text="Read Config", command=self.load_config)
+        self.read_config_button.grid(row=max_row+1, column=0, sticky="w")
+        self.write_config_button = ctk.CTkButton(self.controllers_frame, text="Write Config", command=self.rewrite_config)
+        self.write_config_button.grid(row=max_row+1, column=1, sticky="w")
+
+    def rewrite_config(self):
+        self.plot_obj.export_config("./config.json")
+
+    def load_config(self):
+        self.plot_obj.import_config("./config.json")
+        self.arg_dict = deepcopy({**self.plot_obj.plotargs, **self.plot_obj.rc_params})
+        self.refresh_controllers()
         self.update_plot()
 
     def update_plot(self):
