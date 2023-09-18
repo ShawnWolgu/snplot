@@ -1,15 +1,15 @@
 from . import data
 from .style import *
 from .snplot import plotargs_apply
-from .function import rcparams_scale, convert_config
+from .function import rcparams_predeal, convert_config
 from .tkwindow import tkwindow
+from os import path as p
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from copy import deepcopy
 import json
 
 class xyplot:
-
     rc_params = {
         'legend.loc': 'best',
         'legend.frameon': True,
@@ -44,8 +44,7 @@ class xyplot:
         except:
             pass
         combined_rcp = deepcopy({**self.rc_params, **self.style.params})
-        rcParams.update(rcparams_scale(combined_rcp,self.rc_params['figure.figsize'][0]))
-        print(rcParams['figure.figsize'])
+        rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
         color_list = list(self.style.color_dict.keys())
         fig, ax = plt.subplots()
         cd = self.style.color_dict
@@ -65,6 +64,14 @@ class xyplot:
                 capsize =0.4*rcParams['lines.markersize']
                 ax.errorbar(idata.x, idata.y, idata.yerr, fmt = 'none', ecolor=cd[color_list[id]], elinewidth=ewidth, capsize = capsize, barsabove=False)
                 ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label, markerfacecolor='white')
+            elif idata.plottype == 'mark_color':
+                if self.style.params['snplot.scatter.fill']:
+                    ax.scatter(idata.x, idata.y, c=idata.z, marker=self.style.markers[id], label = idata.label, cmap = self.style.cmap, vmin = idata.vmin, vmax = idata.vmax)
+                else:
+                    norm = plt.Normalize(vmin=idata.vmin, vmax=idata.vmax)(idata.z)
+                    cmap = self.style.cmap
+                    cols = cmap(norm)
+                    ax.scatter(idata.x, idata.y, c='none', edgecolors= cols, marker=self.style.markers[id], label = idata.label)
             else:
                 break
         ax.legend(frameon=False)
@@ -139,7 +146,6 @@ class xyplot:
         config['rcparams'] = self.rc_params
         json.dump(config, open(path, 'w'),indent = 4)
 
-
     def import_config(self, path:str = None):
         path = self.case_path + self.fig_name + '.json' if path is None else path
         config = json.load(open(path, 'r'))
@@ -171,3 +177,9 @@ class xyplot:
                 self.rc_params[key] = input_args[key]
             else:
                 pass
+
+    def save(self):
+        if ~hasattr(self, 'ax'):
+            self.load_plot()
+        save_path = p.join(self.case_path, self.fig_name + '.png')
+        self.fig.savefig(save_path, dpi = 300, bbox_inches='tight')

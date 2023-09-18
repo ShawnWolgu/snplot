@@ -14,13 +14,16 @@ def interpolate_data_xbase(x, y, xbase):
     y_new = f(xbase)
     return y_new
 
-def rcparams_scale(rcparams, scale):
+def rcparams_predeal(rcparams, scale):
+    return_rcparams = {}
     for key in rcparams.keys():
+        if "snplot" in key:
+            continue
+        return_rcparams[key] = rcparams[key]
         if type(rcparams[key]) == int or type(rcparams[key]) == float:
             if 'alpha' in key: continue
-            rcparams[key] *= scale
-    return rcparams
-
+            return_rcparams[key] *= scale
+    return return_rcparams
 
 def convert_config(args):
     if "xlim" in args.keys():

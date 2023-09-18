@@ -1,3 +1,5 @@
+from cmcrameri import cm
+
 class style:
     def __init__(self) -> None:
         self.name = ''
@@ -24,8 +26,11 @@ class style_default(style):
             'font.size': 2.5,
             'lines.markerfacecolor':'None',
             'lines.markeredgewidth':0.2,
+            'patch.facecolor':'None',
+            'patch.linewidth':0.2,
             'legend.fontsize':2.0,
             'legend.fancybox': False,
+            'snplot.scatter.fill':False
         }
         color_dict = {
             'grey':'#6c6c6c',
@@ -46,3 +51,4 @@ class style_default(style):
         markers = ['o','v','D','p','s','.','^','*','O','>']
         super().__init__(params, color_dict, markers)
         self.name = 'default'
+        self.cmap = cm.batlow 

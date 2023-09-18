@@ -1,29 +1,27 @@
 {
-    "xlabel": "strain",
-    "ylabel": "",
+    "xscale": "log",
     "xlim": [
-        0.0,
-        0.1776
+        10000000000.0,
+        1e+16
     ],
+    "yscale": "log",
     "ylim": [
-        0.0,
-        208.79999999999995
+        0.001,
+        10000000000.0
     ],
-    "xscale": "linear",
-    "yscale": "linear",
-    "xticks": 0.2,
-    "yticks": 50.0,
+    "xlabel": "DD",
+    "ylabel": "Rate",
     "style": "default",
     "rcparams": {
         "legend.loc": "best",
         "legend.frameon": true,
-        "legend.framealpha": 0.15,
-        "legend.edgecolor": "blue",
+        "legend.framealpha": 0.5,
+        "legend.edgecolor": "black",
         "figure.figsize": [
-            7.49,
-            6.24
+            7,
+            6
         ],
-        "lines.markersize": 1.3154918400000002,
-        "lines.linewidth": 0.1683
+        "lines.markersize": 1.1199999999999999,
+        "lines.linewidth": 0.5
     }
 }

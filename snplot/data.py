@@ -84,3 +84,15 @@ class markdata_errorbar(markdata):
         self.x, self.y = interpolate_data(self._x, self._y, jump)
         _, self._yerr[0,:] = interpolate_data(self._x, self._yerr[0,:], jump)
         _, self._yerr[1,:] = interpolate_data(self._x, self._yerr[1,:], jump)
+
+class markdata_color(markdata):
+    def __init__(self, x_, y_, z_, label:str, segment:int=1):
+        super().__init__(x_, y_, label, segment)
+        self._z = np.array(z_)
+        self.z = self._z
+        self.vmin = np.min(self._z)
+        self.vmax = np.max(self._z)
+        self.plottype = 'mark_color'
+    def set_cmap_range(self, vrange):
+        self.vmin = vrange[0]
+        self.vmax = vrange[1]
