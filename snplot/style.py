@@ -28,8 +28,8 @@ class style_default(style):
             'lines.markeredgewidth':0.2,
             'patch.facecolor':'None',
             'patch.linewidth':0.2,
-            'legend.fontsize':2.0,
             'legend.fancybox': False,
+            'xtick.minor.visible': False,
             'snplot.scatter.fill':False
         }
         color_dict = {

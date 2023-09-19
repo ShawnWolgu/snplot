@@ -14,6 +14,7 @@ class xyplot:
         'legend.loc': 'best',
         'legend.frameon': True,
         'legend.framealpha': 0.5,
+        'legend.fontsize' : 2.,
         'legend.edgecolor': 'black',
         'figure.figsize': (7, 6),
         'lines.markersize': 0.8,
