@@ -19,6 +19,7 @@ class xyplot:
         'figure.figsize': (7, 6),
         'lines.markersize': 0.8,
         'lines.linewidth': 0.5,
+        'font.size': 2.5,
     }
 
     def __init__(self):
@@ -28,6 +29,7 @@ class xyplot:
         self.plotargs = {}
         self.style = style_default()
         self.fig, self.ax = None, None
+        self.have_colorbar = False
 
     def __init__(self, dataset:list, fig_name:str = " ", case_path:str = "./", style:str = 'default', **plotargs):
         self.dataset = dataset
@@ -35,6 +37,7 @@ class xyplot:
         self.case_path = case_path
         self.plotargs = plotargs
         self.style = self.get_style(style)
+        self.have_colorbar = False
 
     def add_data(self, d:data.xydata):
         self.dataset.append(d)
@@ -73,10 +76,13 @@ class xyplot:
                     cmap = self.style.cmap
                     cols = cmap(norm)
                     ax.scatter(idata.x, idata.y, c='none', edgecolors= cols, marker=self.style.markers[id], label = idata.label)
+                self.have_colorbar = True
             else:
                 break
         ax.legend(frameon=False)
-        ax.tick_params(direction="in")
+        ax.tick_params(which = "both", direction="in")
+        if self.have_colorbar:
+            fig.colorbar(ax.collections[0], ax=ax)
         if self.plotargs!={}:
             ax = plotargs_apply(ax,self.plotargs)
         self.fig, self.ax = fig, ax
@@ -121,10 +127,10 @@ class xyplot:
     def set_yscale(self, yscale:str):
         self.plotargs['yscale'] = yscale
 
-    def set_xticks(self, xticks:float):
+    def set_xticks(self, xticks):
         self.plotargs['xticks'] = xticks
 
-    def set_yticks(self, yticks:float):
+    def set_yticks(self, yticks):
         self.plotargs['yticks'] = yticks
 
     def set_legendloc(self, loc:str):
@@ -166,8 +172,8 @@ class xyplot:
         self.plotargs['ylim'] = self.ax.get_ylim()
         self.plotargs['xscale'] = self.ax.get_xscale()
         self.plotargs['yscale'] = self.ax.get_yscale()
-        self.plotargs['xticks'] = self.ax.get_xticks()[1] - self.ax.get_xticks()[0]
-        self.plotargs['yticks'] = self.ax.get_yticks()[1] - self.ax.get_yticks()[0]
+        self.plotargs['xticks'] = self.ax.get_xticks()
+        self.plotargs['yticks'] = self.ax.get_yticks()
         plt.close(self.fig)
 
     def update_args(self, input_args:dict):

@@ -43,22 +43,16 @@ def plotargs_apply(ax,plotargs):
         ax.set_xlim(plotargs['xlim'])
     if 'ylim' in plotargs.keys():
         ax.set_ylim(plotargs['ylim'])
-    if 'xticks' in plotargs.keys():
-        if plotargs['xscale'] == 'log':
-            pass
-        else:
-            ax.set_xticks(np.arange(ax.get_xticks().min(),ax.get_xticks().max()+plotargs['xticks'],plotargs['xticks']))
-    if 'yticks' in plotargs.keys():
-        if plotargs['yscale'] == 'log':
-            pass
-        else:
-            ax.set_yticks(np.arange(ax.get_yticks().min(),ax.get_yticks().max()+plotargs['yticks'],plotargs['yticks']))
-    if 'legendloc' in plotargs.keys():
-        ax.legend(loc=plotargs['legendloc'])
     if 'xscale' in plotargs.keys():
         ax.set_xscale(plotargs['xscale'])
     if 'yscale' in plotargs.keys():
         ax.set_yscale(plotargs['yscale'])
+    if 'xticks' in plotargs.keys():
+        ax.set_xticks(plotargs['xticks'])
+    if 'yticks' in plotargs.keys():
+        ax.set_yticks(plotargs['yticks'])
+    if 'legendloc' in plotargs.keys():
+        ax.legend(loc=plotargs['legendloc'])
     return ax
 
 def expdata_deal(expdata,interval=1):

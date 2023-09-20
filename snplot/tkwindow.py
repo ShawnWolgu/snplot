@@ -25,8 +25,9 @@ class tkwindow:
         row_num = 0
         for key, value in self.arg_dict.items():
             controller = self.create_controller(key, value, row_num)
-            controllers[key] = controller
-            row_num += 1
+            if controller is not None:
+                controllers[key] = controller
+                row_num += 1
         return controllers
 
     def create_controller(self, key, value, row_num):

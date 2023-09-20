@@ -23,7 +23,6 @@ class style_default(style):
             'font.sans-serif':'Helvetica',
             'font.style':'normal',
             'font.weight':'normal',
-            'font.size': 2.5,
             'lines.markerfacecolor':'None',
             'lines.markeredgewidth':0.2,
             'patch.facecolor':'None',

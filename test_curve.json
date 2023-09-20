@@ -1,27 +1,28 @@
 {
     "xscale": "log",
     "xlim": [
-        10000000000.0,
-        1e+16
+        1000000000.0,
+        1000000000000000.0
     ],
     "yscale": "log",
     "ylim": [
         0.001,
-        10000000000.0
+        1000000000.0
     ],
-    "xlabel": "DD",
-    "ylabel": "Rate",
+    "xlabel": "Dislocation Density (m$^{-2}$)",
+    "ylabel": "Strain Rate (s$^{-1}$)",
     "style": "default",
     "rcparams": {
-        "legend.loc": "best",
+        "legend.loc": "upper left",
         "legend.frameon": true,
         "legend.framealpha": 0.5,
+        "legend.fontsize": 1.32,
         "legend.edgecolor": "black",
         "figure.figsize": [
-            7,
+            8,
             6
         ],
-        "lines.markersize": 1.1199999999999999,
+        "lines.markersize": 1.095,
         "lines.linewidth": 0.5
     }
 }

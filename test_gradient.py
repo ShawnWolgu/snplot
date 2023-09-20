@@ -78,7 +78,7 @@ def greyscale_plot(sep_data):
     # Create a contour plot
     plt.tricontourf(np.log10(dislocation_density), np.log10(strain_rate), 1-time_fraction, cmap=colormap, vmin = 0., vmax = 1., levels=100)
     #plt.tricontourf(np.log10(dislocation_density), (strain_rate), 1-time_fraction, cmap=cmc.batlowW, vmin = 0.1, vmax = 0.9, levels=100)
-    plt.ylim((-3,10))
+    plt.ylim((-3,9))
     #plt.xscale("log")
     #plt.yscale("log")
     # plt.plot(np.log10(sep_data[-1][:,0]), np.log10(sep_data[-1][:,2]))
@@ -184,7 +184,7 @@ def seperate_array(data, number, by):
     return np.array_split(data_rearrange, data_rearrange.shape[0]/number)
 
 def time_fraction_data_preparation(parameters, rho, frac_vec, ismooth = True):
-    stress = np.arange(0.5,10.,0.0001)
+    stress = np.arange(0.5,20.,0.0001)
     contour_data = []
     for irho in rho:
         result, velocity = time_proportion(parameters, irho, stress)
@@ -272,7 +272,7 @@ if __name__ == "__main__":
     # nu_r, c_l, Q_0, tau_P, xi, v_s, c_d, c_b
     frac_vec = np.arange(0.,1.,0.01)
     parameters = [1e14, 1., 2.8*eV, 1.*MPa, 0.8, 1800, 0.85, 0.075]
-    rho = np.array([i*10**k for k in range(10,16) for i in range(1, 10)])
+    rho = np.array([i*10**k for k in range(9,15) for i in range(1, 10)])
     plot_greyscale_rate(parameters, rho, frac_vec, ismooth=False) # Enable to plot the greyscale plot for the rate
     # plot_greyscale_vel(parameters, rho, frac_vec) # Enable to plot the greyscale plot for the velocity
     # get_stress_velo_data(parameters, [1e12,1e13,1e14,1e15])

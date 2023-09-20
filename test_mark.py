@@ -39,29 +39,32 @@ def plot_rate_SRS(df):
 def plot_DD_rate(df):
     # Filter the REF column to contain only integers from 0 to 4
     df['REF'] = df['REF'].astype(int)
-    df_ref_filtered = df[df['REF'].isin([0, 1, 2, 3, 4, 5])]
+    df_ref_filtered = df[df['REF'].isin([0, 1, 2, 3, 4, 5, 6])]
+    legend = ['Ha et al. 2020', 'Wang & Shan 2008', 'Zhou et al. 2007', 'Yadav, Chichili & Ramesh 1995', 'Sakino 2021', 'Kabirian, Khan, and Pandey 2014', 'Khan & Liu 2012']
 
     dataset = []
-    for i in range(6):
-        coeff = 0.1 if i >= 2 and i <= 4 else 1
+    for i in range(7):
+        coeff = 1
         ref_filtered = df_ref_filtered[df_ref_filtered['REF'] == i]
-        dataset.append(markdata_color(coeff * ref_filtered['DD_Range1'], ref_filtered['Rate_UL'], np.log10(ref_filtered['SRS']), f'REF {i}'))
+        dataset.append(markdata_color(coeff * ref_filtered['DD'], ref_filtered['strain rate'], np.log10(ref_filtered['SRS']), legend[i]))
 
     for idata in dataset:
         idata.set_cmap_range((-2,0))
 
     plot = xyplot(dataset, "SRS")
     plot.set_xscale('log')
-    plot.set_xlim((1e10,1e16))
+    plot.set_xlim((1e9,1e15))
     plot.set_yscale('log')
-    plot.set_ylim((1e-3,1e10))
-    plot.set_xlabel('DD')
-    plot.set_ylabel('Rate')
+    plot.set_ylim((1e-3,1e9))
+    plot.set_xlabel('Dislocation Density (m$^{-2}$)')
+    plot.set_ylabel('Strain Rate (s$^{-1}$)')
+    plot.rc_params['figure.figsize'] = (8,6)
+    plot.load_plot()
     
     # Show the plot
     plot.show_tk()
 
 if __name__ == "__main__":
-    df = pd.read_csv('./samples/SRS.csv')
+    df = pd.read_csv('./SRS_Al.csv')
     plot_DD_rate(df)
     # plot_rate_SRS(df)
