@@ -7,6 +7,10 @@ A python code to draw figures in scientific papers. Based on self plotting habit
 - Can call interactive UI to do detailed adjustment
 
 # Update Log
+## Ver0.2
+- Add eulerdata type
+- Add plot type: Pole figure and inverse pole figure tracks
+
 ## Ver0.1
 - support simple scatter and line plots
 - support a simple interactive UI based on custom_tkinter
