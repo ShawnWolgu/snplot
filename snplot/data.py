@@ -1,5 +1,5 @@
 import numpy as np
-from .function import interpolate_data, interpolate_data_xbase
+from .function import *
 
 class xydata:
     def __init__(self, x_, y_, label:str):
@@ -96,3 +96,34 @@ class markdata_color(markdata):
     def set_cmap_range(self, vrange):
         self.vmin = vrange[0]
         self.vmax = vrange[1]
+
+class eulerdata:
+    def __init__(self, phi1_, Phi_, phi2_,label:str,  rotation_="zxz", segment:int=1):
+        self.phi1 = np.array(phi1_)[0::segment]
+        self.Phi = np.array(Phi_)[0::segment]
+        self.phi2 = np.array(phi2_)[0::segment]
+        self.rotation = rotation_
+        self.label = label
+        self.plottype = 'euler'
+    def to_pole_figure(self, axis):
+        self.plottype = 'pole_figure'
+        self.x = np.array([])
+        self.y = np.array([])
+        for i in range(len(self.phi1)):
+            _axis = Euler_trans(np.array([self.phi1[i], self.Phi[i], self.phi2[i]]), axis)
+            _axis = _axis.reshape(-1)
+            coord = trans_to_xy(_axis)
+            self.x = np.append(self.x, coord[0])
+            self.y = np.append(self.y, coord[1])
+    def to_inverse_pole_figure(self, axis):
+        self.plottype = 'inverse_pole_figure'
+        self.x = np.array([])
+        self.y = np.array([])
+        for i in range(len(self.phi1)):
+            _axis = Euler_trans(np.array([self.phi1[i], self.Phi[i], self.phi2[i]]), axis)
+            _axis = _axis.reshape(-1)
+            ipf_axis = calc_ipf(_axis)
+            coord = trans_to_xy(ipf_axis)
+            self.x = np.append(self.x, coord[0])
+            self.y = np.append(self.y, coord[1])
+
