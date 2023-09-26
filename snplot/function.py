@@ -66,3 +66,29 @@ def calc_ipf(axis_vec):
     axis_ipf = np.array([sorted_axis[1],sorted_axis[0],sorted_axis[2]])
     return axis_ipf
 
+def get_alignment(pos='u'):
+    if pos == 'u' or pos == 'upper':
+        return {'ha':'center', 'va':'bottom', 'offset':(0,1)}
+    elif pos == 'b' or pos == 'bottom':
+        return {'ha':'center', 'va':'top', 'offset':(0,-1)}
+    elif pos == 'l' or pos == 'left':
+        return {'ha':'right', 'va':'center', 'offset':(-1,0)}
+    elif pos == 'r' or pos == 'right':
+        return {'ha':'left', 'va':'center', 'offset':(1,0)}
+    elif pos == 'ul' or pos == 'upper left':
+        return {'ha':'right', 'va':'bottom', 'offset':(-0.7,0.7)}
+    elif pos == 'ur' or pos == 'upper right':
+        return {'ha':'left', 'va':'bottom', 'offset':(0.7,0.7)}
+    elif pos == 'bl' or pos == 'bottom left':
+        return {'ha':'right', 'va':'top', 'offset':(-0.7,-0.7)}
+    elif pos == 'br' or pos == 'bottom right':
+        return {'ha':'left', 'va':'top', 'offset':(0.7,-0.7)}
+    else:
+        return {'ha':'center', 'va':'center', 'offset':(0,0)}
+
+def add_text(ax, text, x, y, pos = 'u', **kwargs):
+    alignment = get_alignment(pos)
+    x_scale = max(0.01*x, 0.002)
+    y_scale = max(0.01*y, 0.002)
+    ax.text(x+x_scale * alignment['offset'][0], y+y_scale * alignment['offset'][1], text, ha=alignment['ha'], va=alignment['va'], **kwargs)
+    return ax

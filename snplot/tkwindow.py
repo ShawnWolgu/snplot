@@ -119,7 +119,6 @@ class tkwindow:
                 messagebox.showwarning("Key Error", f"Key not found: {key}")
         else:
             messagebox.showwarning("Key Error", f"Key not found: {key}")
-        self.plot_obj.export_config("./test_curve.json")
         self.update_plot()
 
     def create_config_buttons(self):

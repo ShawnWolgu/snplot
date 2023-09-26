@@ -47,7 +47,7 @@ class style_default(style):
             'mild_blue':'#3c3f8b',
             'mild_purple':'#823a7e'
         }
-        markers = ['o','v','D','p','s','.','^','*','O','>']
+        markers = ['o','v','D','p','s','.','^','*','X','>','8','h','H','P']
         super().__init__(params, color_dict, markers)
         self.name = 'default'
         self.cmap = cm.batlow 

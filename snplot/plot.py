@@ -1,7 +1,7 @@
 from . import data
 from .style import *
 from .snplot import plotargs_apply
-from .function import rcparams_predeal, convert_config, trans_to_xy, calc_ipf
+from .function import rcparams_predeal, convert_config, trans_to_xy, calc_ipf, get_alignment, add_text
 from .tkwindow import tkwindow
 from os import path as p
 import numpy as np
@@ -46,7 +46,7 @@ class xyplot:
     def load_plot(self):
         try:
             plt.close(self.plt)
-        except:
+        except Exception:
             pass
         combined_rcp = deepcopy({**self.rc_params, **self.style.params})
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
@@ -237,7 +237,7 @@ class pole_figure:
             ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
             ax.plot(idata.x[0], idata.y[0], 'o', color = cd[color_list[id]])
             ax.plot(idata.x[-1], idata.y[-1], 's', color = cd[color_list[id]])
-            ax.text(idata.x[0], idata.y[0], idata.label, color = cd[color_list[id]])
+            add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
 
         circlep = np.arange(0,2.2*np.pi,0.1*np.pi)
         circlex = np.sin(circlep)
@@ -355,7 +355,7 @@ class inverse_pole_figure(pole_figure):
             ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
             ax.plot(idata.x[0], idata.y[0], 'o', color = cd[color_list[id]])
             ax.plot(idata.x[-1], idata.y[-1], 's', color = cd[color_list[id]])
-            ax.text(idata.x[0], idata.y[0], idata.label, color = cd[color_list[id]])
+            add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
 
         ax.axis('off')
         if self.have_colorbar:

@@ -5,14 +5,19 @@ from pandas import read_csv
 from os import path
 
 dataset = []
-for case in ["001", "111", "112", "213", "101", "102", "212"]:
+label_pos = ['b','u','ul','ur','b','b', 'ur']
+for idx, case in enumerate(["001", "111", "112", "213", "101", "102", "212"]):
     csvpath = path.join("~/Desktop/Working/0716_SXCpp/SingleCrystalCpp/debug/0912_Fit/02_Al_fit/5E7_cases/", case, "euler_angle_grain.csv")
-    euler = read_csv(csvpath)
+    try:
+        euler = read_csv(csvpath)
+    except:
+        print("No file: {}".format(csvpath))
+        continue
     phi1 = euler[["phi1"]]
     Phi = euler[["PHI"]]
     phi2 = euler[["phi2"]]
     
-    data = eulerdata(phi1, Phi, phi2, case, segment=100)
+    data = eulerdata(phi1, Phi, phi2, case, segment=10, label_pos=label_pos[idx])
     data.to_inverse_pole_figure('z')
     dataset.append(data)
 
