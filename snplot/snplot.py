@@ -45,14 +45,23 @@ def plotargs_apply(ax,plotargs):
         ax.set_ylim(plotargs['ylim'])
     if 'xscale' in plotargs.keys():
         ax.set_xscale(plotargs['xscale'])
+        if plotargs['xlim'][0] <= 0:
+            ax.set_xlim([None, None])
     if 'yscale' in plotargs.keys():
         ax.set_yscale(plotargs['yscale'])
+        if plotargs['ylim'][0] <= 0:
+            ax.set_ylim([None, None])
     if 'xticks' in plotargs.keys():
         ax.set_xticks(plotargs['xticks'])
     if 'yticks' in plotargs.keys():
         ax.set_yticks(plotargs['yticks'])
     if 'legendloc' in plotargs.keys():
         ax.legend(loc=plotargs['legendloc'])
+    if 'havelegend' in plotargs.keys():
+        if plotargs['havelegend'] == False:
+            ax.legend().set_visible(False)
+        else:
+            ax.legend().set_visible(True)
     return ax
 
 def expdata_deal(expdata,interval=1):

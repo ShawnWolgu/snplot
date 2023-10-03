@@ -1,4 +1,5 @@
 import numpy as np
+from multimethod import multimethod
 from .function import *
 
 class xydata:
@@ -40,10 +41,22 @@ class dashdata(xydata):
         self.plottype = 'dash'
 
 class linemarkdata(markdata):
-    def __init__(self, x_, y_, lx_, ly_, label:str, segment:int=1):
+    def __init__(self, x_, y_, lx_=None, ly_=None, label:str="", label_l:str="", segment:int=1):
         super().__init__(x_, y_, label, segment)
-        self._lx = np.array(lx_)
-        self._ly = np.array(ly_)
+        if lx_ is None and ly_ is None:
+            self._lx = np.array(x_)
+            self._ly = np.array(y_)
+            self.label_l = label
+            self.consistent = True
+        elif lx_ is None:
+            raise ValueError("lx_ is None but ly_ is not None in linemarkdata class")
+        elif ly_ is None:
+            raise ValueError("ly_ is None but lx_ is not None in linemarkdata class")
+        else:
+            self._lx = np.array(lx_)
+            self._ly = np.array(ly_)
+            self.label_l = label_l
+            self.consistent = False
         self.lx = self._lx
         self.ly = self._ly
         self.plottype = 'linemark'
@@ -52,6 +65,7 @@ class linemarkdata(markdata):
         self.lx, self.ly = interpolate_data(self._lx, self._ly, jump)
 
 class markdata_errorbar(markdata):
+    @multimethod
     def __init__(self, x_, y_, yerr_, label:str, segment:int=1):
         super().__init__(x_, y_, label, segment)
         if isinstance(yerr_, float):
@@ -62,11 +76,13 @@ class markdata_errorbar(markdata):
             self._yerr = np.array(yerr_)
         self.plottype = 'mark_errorbar'
         self.set_segment(segment)
+    @multimethod
     def __init__(self, x_, y_, yerr_up, yerr_low, label: str, segment: int = 1):
         super().__init__(x_, y_, label, segment)
         self._yerr = np.array([yerr_low, yerr_up])
         self.plottype = 'mark_errorbar'
         self.set_segment(segment)
+    @multimethod
     def __init__(self, x_, y_, yerr_up_x, yerr_up_y, yerr_low_x, yerr_low_y, label: str, segment: int = 1):
         super().__init__(x_, y_, label, segment)
         yerr_up = interpolate_data_xbase(np.array(yerr_up_x), np.array(yerr_up_y), self._x)
@@ -98,8 +114,10 @@ class markdata_color(markdata):
         self.vmax = vrange[1]
 
 class eulerdata:
+    @multimethod
     def __init__(self):
         self.plottype = 'blankeuler'
+    @multimethod
     def __init__(self, phi1_, Phi_, phi2_,label:str, label_pos:str='top', rotation_="zxz", segment:int=1):
         self.phi1 = np.array(phi1_)[0::segment]
         self.Phi = np.array(Phi_)[0::segment]

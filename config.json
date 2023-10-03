@@ -1,12 +1,30 @@
 {
+    "xlabel": "strain",
+    "ylabel": "stress (MPa)",
+    "xlim": [
+        0.0,
+        1.0
+    ],
+    "ylim": [
+        0.0,
+        500.0
+    ],
+    "xscale": "linear",
+    "yscale": "linear",
+    "havelegend": true,
     "style": "default",
     "rcparams": {
+        "legend.loc": "best",
+        "legend.frameon": true,
+        "legend.framealpha": 0.5,
+        "legend.fontsize": 2.0,
+        "legend.edgecolor": "black",
         "figure.figsize": [
-            8,
-            5.656
+            7,
+            6
         ],
         "lines.markersize": 0.8,
-        "lines.linewidth": 0.295,
-        "font.size": 2.3499999999999996
+        "lines.linewidth": 0.5,
+        "font.size": 2.5
     }
 }

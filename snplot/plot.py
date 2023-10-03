@@ -4,9 +4,11 @@ from .snplot import plotargs_apply
 from .function import rcparams_predeal, convert_config, trans_to_xy, calc_ipf, get_alignment, add_text
 from .tkwindow import tkwindow
 from os import path as p
+from multimethod import multimethod
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+from matplotlib.cm import ScalarMappable
 from copy import deepcopy
 import json
 
@@ -23,6 +25,7 @@ class xyplot:
         'font.size': 2.5,
     }
 
+    @multimethod
     def __init__(self):
         self.dataset = []
         self.fig_name = None
@@ -32,6 +35,7 @@ class xyplot:
         self.fig, self.ax = None, None
         self.have_colorbar = False
 
+    @multimethod
     def __init__(self, dataset:list, fig_name:str = " ", case_path:str = "./", style:str = 'default', **plotargs):
         self.dataset = dataset
         self.fig_name = fig_name
@@ -48,45 +52,72 @@ class xyplot:
             plt.close(self.plt)
         except Exception:
             pass
+        # print(self.plotargs)
         combined_rcp = deepcopy({**self.rc_params, **self.style.params})
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
-        color_list = list(self.style.color_dict.keys())
-        fig, ax = plt.subplots()
-        cd = self.style.color_dict
+        self.fig, self.ax = plt.subplots()
         for id,idata in enumerate(self.dataset):
-            id = id % len(color_list)
-            if idata.plottype == 'mark':
-                ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label)
-            elif idata.plottype == 'line':
-                ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]], label = idata.label)
-            elif idata.plottype == 'dash':
-                ax.plot(idata.x, idata.y, linestyle='dashed', color = cd[color_list[id]], label = idata.label)
-            elif idata.plottype == 'linemark':
-                ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label)
-                ax.plot(idata.lx, idata.ly, '-', color = cd[color_list[id]])
-            elif idata.plottype == 'mark_errorbar':
-                ewidth = 0.5*rcParams['lines.linewidth']
-                capsize =0.4*rcParams['lines.markersize']
-                ax.errorbar(idata.x, idata.y, idata.yerr, fmt = 'none', ecolor=cd[color_list[id]], elinewidth=ewidth, capsize = capsize, barsabove=False)
-                ax.plot(idata.x, idata.y, self.style.markers[id], markeredgecolor = cd[color_list[id]], label = idata.label, markerfacecolor='white')
-            elif idata.plottype == 'mark_color':
-                if self.style.params['snplot.scatter.fill']:
-                    ax.scatter(idata.x, idata.y, c=idata.z, marker=self.style.markers[id], label = idata.label, cmap = self.style.cmap, vmin = idata.vmin, vmax = idata.vmax)
-                else:
-                    norm = plt.Normalize(vmin=idata.vmin, vmax=idata.vmax)(idata.z)
-                    cmap = self.style.cmap
-                    cols = cmap(norm)
-                    ax.scatter(idata.x, idata.y, c='none', edgecolors= cols, marker=self.style.markers[id], label = idata.label)
-                self.have_colorbar = True
+            id = id % len(self.style.color_dict.keys())
+            if idata.plottype in ['line', 'mark', 'dash', 'linemark', "mark_errorbar", "mark_color"]:
+                self.add_plot(idata, id)
             else:
                 break
-        ax.legend(frameon=False)
-        ax.tick_params(which = "both", direction="in")
+        self.ax.tick_params(which = "both", direction="in")
         if self.have_colorbar:
-            fig.colorbar(ax.collections[0], ax=ax)
+            self.fig.colorbar(self.colorbar_mappable ,ax=self.ax)
         if self.plotargs!={}:
-            ax = plotargs_apply(ax,self.plotargs)
-        self.fig, self.ax = fig, ax
+            if 'havelegend' not in self.plotargs.keys():
+                self.plotargs['havelegend'] = True
+            self.ax = plotargs_apply(self.ax,self.plotargs)
+        else:
+            self.plotargs['havelegend'] = True
+            self.ax = plotargs_apply(self.ax,self.plotargs)
+
+    @multimethod
+    def add_plot(self, data:data.markdata, id:int):
+        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+
+    @multimethod
+    def add_plot(self, data:data.linedata, id:int):
+        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        self.ax.plot(data.x, data.y, '-', color = color, label = data.label)
+
+    @multimethod
+    def add_plot(self, data:data.dashdata, id:int):
+        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        self.ax.plot(data.x, data.y, linestyle='dashed', color = color, label = data.label)
+
+    @multimethod
+    def add_plot(self, data:data.linemarkdata, id:int):
+        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        if data.consistent:
+            self.ax.plot(data.x, data.y, marker = self.style.markers[id], markeredgecolor = color, linestyle = '-', color = color, label = data.label)
+        else:
+            self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+            self.ax.plot(data.lx, data.ly, '-', color = color, label = data.label_l)
+
+    @multimethod
+    def add_plot(self, data:data.markdata_errorbar, id:int):
+        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        ewidth = 0.5*rcParams['lines.linewidth']
+        capsize =0.4*rcParams['lines.markersize']
+        self.ax.errorbar(data.x, data.y, data.yerr, fmt = 'none', ecolor=color, elinewidth=ewidth, capsize = capsize, barsabove=False)
+        self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label, markerfacecolor='white')
+
+    @multimethod
+    def add_plot(self, data:data.markdata_color, id:int):
+        if self.style.params['snplot.scatter.fill']:
+            self.ax.scatter(data.x, data.y, c=data.z, marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
+        else:
+            norm = plt.Normalize(vmin=data.vmin, vmax=data.vmax)(data.z)
+            cmap = self.style.cmap
+            cols = cmap(norm)
+            self.ax.scatter(data.x, data.y, c='none', edgecolors= cols, marker=self.style.markers[id], label = data.label)
+        cmap = self.style.cmap
+        norm = plt.Normalize(vmin=data.vmin, vmax=data.vmax)
+        self.colorbar_mappable = ScalarMappable(norm=norm, cmap=cmap)
+        self.have_colorbar = True
 
     def show(self):
         self.load_plot()
@@ -140,6 +171,9 @@ class xyplot:
     def set_marksize(self, size:float):
         self.rc_params['lines.markersize'] = size
 
+    def set_havelegend(self, have:bool):
+        self.rc_params['havelegend'] = have
+
     def get_style(self, style:str):
         if style == 'default':
             return style_default()
@@ -173,8 +207,7 @@ class xyplot:
         self.plotargs['ylim'] = self.ax.get_ylim()
         self.plotargs['xscale'] = self.ax.get_xscale()
         self.plotargs['yscale'] = self.ax.get_yscale()
-        self.plotargs['xticks'] = self.ax.get_xticks()
-        self.plotargs['yticks'] = self.ax.get_yticks()
+        self.plotargs['havelegend'] = True
         plt.close(self.fig)
 
     def update_args(self, input_args:dict):

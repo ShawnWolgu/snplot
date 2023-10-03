@@ -65,6 +65,6 @@ def plot_DD_rate(df):
     plot.show_tk()
 
 if __name__ == "__main__":
-    df = pd.read_csv('./SRS_Al.csv')
+    df = pd.read_csv('/Users/sunxiaochuan/Desktop/Working/0716_SXCpp/SingleCrystalCpp/debug/0712_DataPreparation/03_SRS_Al/SRS_Al.csv')
     plot_DD_rate(df)
     # plot_rate_SRS(df)
