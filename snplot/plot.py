@@ -108,7 +108,8 @@ class xyplot:
     @multimethod
     def add_plot(self, data:data.markdata_color, id:int):
         if self.style.params['snplot.scatter.fill']:
-            self.ax.scatter(data.x, data.y, c=data.z, marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
+            ec = self.style.color_dict[list(self.style.color_dict.keys())[0]]
+            self.ax.scatter(data.x, data.y, c=data.z, edgecolors=ec,marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
         else:
             norm = plt.Normalize(vmin=data.vmin, vmax=data.vmax)(data.z)
             cmap = self.style.cmap
@@ -177,6 +178,8 @@ class xyplot:
     def get_style(self, style:str):
         if style == 'default':
             return style_default()
+        if style == 'default_mf':
+            return style_default_mf()
         else:
             return style_default()
 
