@@ -1,4 +1,4 @@
-import matplotlib
+import matplotlib, datetime
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from .config import *
@@ -23,6 +23,7 @@ class tkwindow:
         self.controllers = self.create_controllers()
         self.create_config_buttons()
         self.create_export_button()
+        self.create_status_monitor()
 
     def create_controllers(self):
         controllers = {}
@@ -134,6 +135,7 @@ class tkwindow:
         self.read_config_button.grid(row=self.ctl_number+1, column=0, sticky="w")
         self.write_config_button.grid(row=self.ctl_number+1, column=1, sticky="w")
         self.export_button.grid(row=self.ctl_number+2, column=0, sticky="w")
+        self.status_monitor.grid(row=self.ctl_number+3, column=0, sticky="w")
 
     def update_dict_n_controllers(self, key, value):
         print(f"Updating {key} to {value}")
@@ -164,17 +166,34 @@ class tkwindow:
         self.export_button = ctk.CTkButton(self.controllers_frame, text="Export Graph", command=self.export_plot)
         self.export_button.grid(row=self.ctl_number+2, column=0, sticky="w")
 
+    def create_status_monitor(self):
+        self.status_monitor = ctk.CTkTextbox(self.controllers_frame, width=400, height=20)
+        self.status_monitor.configure(state="disabled")
+        self.status_monitor.grid(row=self.ctl_number+3, column=0, columnspan=3, rowspan=2, sticky="w")
+
+    def update_status_monitor(self, text):
+        self.status_monitor.configure(state="normal")
+        self.status_monitor.delete(1.0, ctk.END)
+        data_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.status_monitor.insert(ctk.END, f"{data_stamp} {text}\n")
+        self.status_monitor.configure(state="disabled")
+
     def rewrite_config(self):
-        self.plot_obj.export_config("./config.json")
+        config_name = "./config.json"
+        self.plot_obj.export_config(config_name)
+        self.update_status_monitor("Config written " + config_name)
 
     def load_config(self):
-        self.plot_obj.import_config("./config.json")
+        config_name = "./config.json"
+        self.plot_obj.import_config(config_name)
         self.arg_dict = deepcopy({**self.plot_obj.plotargs, **self.plot_obj.rc_params})
+        self.update_status_monitor("Config loaded " + config_name)
         self.refresh_controllers()
         self.update_plot()
 
     def export_plot(self):
         self.plot_obj.save()
+        self.update_status_monitor("Plot exported")
 
     def update_plot(self):
         try:

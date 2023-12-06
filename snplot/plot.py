@@ -28,7 +28,7 @@ class xyplot:
     @multimethod
     def __init__(self):
         self.dataset = []
-        self.fig_name = None
+        self.fig_name = "fig"
         self.case_path = './'
         self.plotargs = {}
         self.style = style_default()
@@ -36,7 +36,7 @@ class xyplot:
         self.have_colorbar = False
 
     @multimethod
-    def __init__(self, dataset:list, fig_name:str = " ", case_path:str = "./", style:str = 'default', **plotargs):
+    def __init__(self, dataset:list, fig_name:str = "fig", case_path:str = "./", style:str = 'default', **plotargs):
         self.dataset = dataset
         self.fig_name = fig_name
         self.case_path = case_path
