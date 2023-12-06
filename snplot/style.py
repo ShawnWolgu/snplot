@@ -21,7 +21,12 @@ class style_default(style):
             'patch.linewidth':0.2,
             'legend.fancybox': False,
             'xtick.minor.visible': False,
-            'snplot.scatter.fill':False
+            'snplot.scatter.fill':False,
+            'xtick.major.pad': 1.0,
+            'ytick.major.pad': 1.0,
+            'xtick.major.size': 1.,
+            'ytick.major.size': 1.,
+            'axes.labelpad': 1.
         }
         color_dict = [
             cm_pure, cm_pure2, cm_snplot, cm_zepeda, cm_dislocation
@@ -43,7 +48,12 @@ class style_default_mf(style):
             'patch.linewidth':0.2,
             'legend.fancybox': False,
             'xtick.minor.visible': False,
-            'snplot.scatter.fill':True
+            'snplot.scatter.fill':True,
+            'xtick.major.pad': 1.0,
+            'ytick.major.pad': 1.0,
+            'xtick.major.size': 1.,
+            'ytick.major.size': 1.,
+            'axes.labelpad': 0.8
         }
         color_dict = {
             'grey':'#6c6c6c',

@@ -24,7 +24,7 @@ class xyplot:
         'lines.linewidth': 0.5,
         'font.size': 2.5,
         'snplot.color_dict': 0,
-        'snplot.color_wheel': 0,
+        'snplot.color_wheel': 0
     }
 
     @multimethod

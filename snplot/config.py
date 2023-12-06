@@ -9,6 +9,8 @@ property_label = {
     'lines.markersize': 'Marker size',
     'lines.linewidth': 'Line width',
     'font.size': 'Font size',
+    'xtick.major.pad': 'X-axis tick padding',
+    'ytick.major.pad': 'Y-axis tick padding',
     'xlabel': 'Label for x-axis',
     'ylabel': 'Label for y-axis',
     'title': 'Title',
