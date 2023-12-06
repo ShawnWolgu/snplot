@@ -18,4 +18,6 @@ property_label = {
     'yticks': 'Y-axis ticks',
     'xscale': 'X-axis scale type',
     'yscale': 'Y-axis scale type',
+    'snplot.color_dict': "Color Map Choose",
+    'snplot.color_wheel': "Color Wheel"
 }

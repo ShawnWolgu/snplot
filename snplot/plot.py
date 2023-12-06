@@ -23,6 +23,8 @@ class xyplot:
         'lines.markersize': 0.8,
         'lines.linewidth': 0.5,
         'font.size': 2.5,
+        'snplot.color_dict': 0,
+        'snplot.color_wheel': 0,
     }
 
     @multimethod
@@ -57,7 +59,8 @@ class xyplot:
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
         self.fig, self.ax = plt.subplots()
         for id,idata in enumerate(self.dataset):
-            id = id % len(self.style.color_dict.keys())
+            dict_id = self.rc_params['snplot.color_dict']
+            id = (id + self.rc_params['snplot.color_wheel']) % len(self.style.color_dict[dict_id].keys())
             if idata.plottype in ['line', 'mark', 'dash', 'linemark', "mark_errorbar", "mark_color"]:
                 self.add_plot(idata, id)
             else:
@@ -75,22 +78,26 @@ class xyplot:
 
     @multimethod
     def add_plot(self, data:data.markdata, id:int):
-        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
+        color = cmap[list(cmap.keys())[id]]
         self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
 
     @multimethod
     def add_plot(self, data:data.linedata, id:int):
-        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
+        color = cmap[list(cmap.keys())[id]]
         self.ax.plot(data.x, data.y, '-', color = color, label = data.label)
 
     @multimethod
     def add_plot(self, data:data.dashdata, id:int):
-        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
+        color = cmap[list(cmap.keys())[id]]
         self.ax.plot(data.x, data.y, linestyle='dashed', color = color, label = data.label)
 
     @multimethod
     def add_plot(self, data:data.linemarkdata, id:int):
-        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
+        color = cmap[list(cmap.keys())[id]]
         if data.consistent:
             self.ax.plot(data.x, data.y, marker = self.style.markers[id], markeredgecolor = color, linestyle = '-', color = color, label = data.label)
         else:
@@ -99,7 +106,8 @@ class xyplot:
 
     @multimethod
     def add_plot(self, data:data.markdata_errorbar, id:int):
-        color = self.style.color_dict[list(self.style.color_dict.keys())[id]]
+        cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
+        color = cmap[list(cmap.keys())[id]]
         ewidth = 0.5*rcParams['lines.linewidth']
         capsize =0.4*rcParams['lines.markersize']
         self.ax.errorbar(data.x, data.y, data.yerr, fmt = 'none', ecolor=color, elinewidth=ewidth, capsize = capsize, barsabove=False)
@@ -108,7 +116,8 @@ class xyplot:
     @multimethod
     def add_plot(self, data:data.markdata_color, id:int):
         if self.style.params['snplot.scatter.fill']:
-            ec = self.style.color_dict[list(self.style.color_dict.keys())[0]]
+            cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
+            ec = cmap[list(cmap.keys())[self.rc_params['snplot.color_wheel']]]
             self.ax.scatter(data.x, data.y, c=data.z, edgecolors=ec,marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
         else:
             norm = plt.Normalize(vmin=data.vmin, vmax=data.vmax)(data.z)
@@ -234,6 +243,8 @@ class pole_figure:
         'lines.markersize': 0.8,
         'lines.linewidth': 0.5,
         'font.size': 2.5,
+        'snplot.color_dict': 0,
+        'snplot.color_wheel': 0
     }
 
     def __init__(self):
@@ -263,11 +274,11 @@ class pole_figure:
             pass
         combined_rcp = deepcopy({**self.rc_params, **self.style.params})
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
-        cd = self.style.color_dict
+        cd = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color_list = list(cd.keys())
         fig, ax = plt.subplots()
         for id,idata in enumerate(self.dataset):
-            id = id % len(color_list)
+            id = (id + self.rc_params['snplot.color_wheel']) % len(color_list)
             if idata.plottype != 'pole_figure':
                 raise ValueError('Data type error!')
             ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
@@ -362,6 +373,8 @@ class inverse_pole_figure(pole_figure):
         'lines.markersize': 0.8,
         'lines.linewidth': 0.5,
         'font.size': 2.5,
+        'snplot.color_dict': 0,
+        'snplot.color_wheel': 0
     }
 
     def load_plot(self):
@@ -371,7 +384,7 @@ class inverse_pole_figure(pole_figure):
             pass
         combined_rcp = deepcopy({**self.rc_params, **self.style.params})
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
-        cd = self.style.color_dict
+        cd = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color_list = list(cd.keys())
         fig, ax = plt.subplots()
 
@@ -385,7 +398,7 @@ class inverse_pole_figure(pole_figure):
         ax.plot([0,1/2.732],[0,1/2.732],'k-')
 
         for id,idata in enumerate(self.dataset):
-            id = id % len(color_list)
+            id = (id + self.rc_params['snplot.color_wheel']) % len(color_list)
             if idata.plottype != 'inverse_pole_figure':
                 raise ValueError('Data type error!')
             ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])

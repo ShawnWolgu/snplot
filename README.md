@@ -7,6 +7,10 @@ A python code to draw figures in scientific papers. Based on self plotting habit
 - Can call interactive UI to do detailed adjustment
 
 # Update Log
+## Ver0.4
+- Added a small status monitor. It can reflect reading or writing the config file and exporting the current image.
+- Add colormap switch and change the cmap sequence by colorwheel
+
 ## Ver0.3
 - Fixed an issue with legends in linemarkdata (e.g., point, line, combination).
 - Added support for defining single-group data in linemarkdata.

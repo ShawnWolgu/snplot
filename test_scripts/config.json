@@ -1,0 +1,32 @@
+{
+    "havelegend": true,
+    "xlabel": "Strain",
+    "ylabel": "Stress (MPa) ",
+    "xlim": [
+        0.0,
+        0.05
+    ],
+    "ylim": [
+        0.0,
+        400.0
+    ],
+    "xscale": "linear",
+    "yscale": "linear",
+    "style": "default",
+    "rcparams": {
+        "legend.loc": "best",
+        "legend.frameon": false,
+        "legend.framealpha": 0.5,
+        "legend.fontsize": 1.8,
+        "legend.edgecolor": "black",
+        "figure.figsize": [
+            7.5,
+            6.0
+        ],
+        "lines.markersize": 1.136,
+        "lines.linewidth": 0.33,
+        "font.size": 1.8,
+        "snplot.color_dict": 0,
+        "snplot.color_wheel": 1
+    }
+}
