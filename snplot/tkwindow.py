@@ -138,7 +138,7 @@ class tkwindow:
         self.status_monitor.grid(row=self.ctl_number+3, column=0, sticky="w")
 
     def update_dict_n_controllers(self, key, value):
-        print(f"Updating {key} to {value}")
+        self.update_status_monitor(f"Updating {key} to {value}")
         if key in self.arg_dict.keys():
             self.arg_dict[key] = value
             refresh_controllers(key, [value], self.controllers)

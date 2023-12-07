@@ -51,7 +51,7 @@ def plot_DD_rate(df):
     for idata in dataset:
         idata.set_cmap_range((-2,0))
 
-    plot = xyplot(dataset, "SRS")
+    plot = xyplot(dataset, "SRS", style='default')
     plot.set_xscale('log')
     plot.set_xlim((1e9,1e15))
     plot.set_yscale('log')

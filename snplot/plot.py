@@ -5,6 +5,7 @@ from .function import rcparams_predeal, rcparams_update, rcparams_combine, conve
 from .tkwindow import tkwindow
 from os import path as p
 from multimethod import multimethod
+from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -24,7 +25,8 @@ class xyplot:
         'lines.linewidth': 0.5,
         'font.size': 2.5,
         'snplot.color_dict': 0,
-        'snplot.color_wheel': 0
+        'snplot.color_wheel': 0,
+        'snplot.scatter.fill': False
     }
 
     @multimethod
@@ -117,7 +119,7 @@ class xyplot:
 
     @multimethod
     def add_plot(self, data:data.markdata_color, id:int):
-        if self.style.params['snplot.scatter.fill']:
+        if self.rc_params['snplot.scatter.fill']:
             cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
             ec = cmap[list(cmap.keys())[self.rc_params['snplot.color_wheel']]]
             self.ax.scatter(data.x, data.y, c=data.z, edgecolors=ec,marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
