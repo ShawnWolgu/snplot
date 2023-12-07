@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 from scipy.interpolate import interp1d
 
 def interpolate_data(x, y, jump):
@@ -24,6 +25,20 @@ def rcparams_predeal(rcparams, scale):
             if 'alpha' in key: continue
             return_rcparams[key] *= scale
     return return_rcparams
+
+def rcparams_update(rc_, rc_u):
+    rc_d = deepcopy(rc_)
+    for key in rc_u.keys():
+        if key in rc_d.keys():
+            rc_d[key] = rc_u[key]
+    return rc_d
+
+def rcparams_combine(rc_1, rc_2):
+    # rc_2 will overwrite rc_1
+    rc_d = deepcopy(rc_1)
+    for key in rc_2.keys():
+        rc_d[key] = rc_2[key]
+    return rc_d
 
 def convert_config(args):
     if "xlim" in args.keys():

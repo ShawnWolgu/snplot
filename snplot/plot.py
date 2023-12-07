@@ -1,7 +1,7 @@
 from . import data
 from .style import *
 from .snplot import plotargs_apply
-from .function import rcparams_predeal, convert_config, trans_to_xy, calc_ipf, get_alignment, add_text
+from .function import rcparams_predeal, rcparams_update, rcparams_combine, convert_config, trans_to_xy, calc_ipf, get_alignment, add_text
 from .tkwindow import tkwindow
 from os import path as p
 from multimethod import multimethod
@@ -19,7 +19,7 @@ class xyplot:
         'legend.framealpha': 0.5,
         'legend.fontsize' : 2.,
         'legend.edgecolor': 'black',
-        'figure.figsize': (7, 6),
+        'figure.figsize': (7.5, 6),
         'lines.markersize': 0.8,
         'lines.linewidth': 0.5,
         'font.size': 2.5,
@@ -34,6 +34,7 @@ class xyplot:
         self.case_path = './'
         self.plotargs = {}
         self.style = style_default()
+        self.rc_params = rcparams_update(self.rc_params, self.style.params)
         self.fig, self.ax = None, None
         self.have_colorbar = False
 
@@ -44,6 +45,7 @@ class xyplot:
         self.case_path = case_path
         self.plotargs = plotargs
         self.style = self.get_style(style)
+        self.rc_params = rcparams_update(self.rc_params, self.style.params)
         self.have_colorbar = False
 
     def add_data(self, d:data.xydata):
@@ -55,7 +57,7 @@ class xyplot:
         except Exception:
             pass
         # print(self.plotargs)
-        combined_rcp = deepcopy({**self.rc_params, **self.style.params})
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
         self.fig, self.ax = plt.subplots()
         for id,idata in enumerate(self.dataset):
@@ -247,21 +249,13 @@ class pole_figure:
         'snplot.color_wheel': 0
     }
 
-    def __init__(self):
-        self.dataset = []
-        self.fig_name = None
-        self.case_path = './'
-        self.plotargs = {}
-        self.style = style_default()
-        self.fig, self.ax = None, None
-        self.have_colorbar = False
-
     def __init__(self, dataset:list, fig_name:str = " ", case_path:str = "./", style:str = 'default', **plotargs):
         self.dataset = dataset
         self.fig_name = fig_name
         self.case_path = case_path
         self.plotargs = plotargs
         self.style = self.get_style(style)
+        self.rc_params = rcparams_update(self.rc_params, self.style.params)
         self.have_colorbar = False
 
     def add_data(self, d:data.eulerdata):
@@ -272,7 +266,7 @@ class pole_figure:
             plt.close(self.plt)
         except:
             pass
-        combined_rcp = deepcopy({**self.rc_params, **self.style.params})
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
         cd = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color_list = list(cd.keys())
@@ -382,7 +376,7 @@ class inverse_pole_figure(pole_figure):
             plt.close(self.plt)
         except:
             pass
-        combined_rcp = deepcopy({**self.rc_params, **self.style.params})
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
         cd = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color_list = list(cd.keys())

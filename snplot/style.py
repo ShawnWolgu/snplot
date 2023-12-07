@@ -26,7 +26,12 @@ class style_default(style):
             'ytick.major.pad': 1.0,
             'xtick.major.size': 1.,
             'ytick.major.size': 1.,
-            'axes.labelpad': 1.
+            'axes.labelpad': 1., 
+            'legend.frameon': False,
+            'legend.fontsize': 1.8,
+            'lines.linewidth' : 0.33,
+            'lines.markersize' : 1.15,
+            'font.size': 1.8
         }
         color_dict = [
             cm_pure, cm_pure2, cm_snplot, cm_zepeda, cm_dislocation
@@ -55,22 +60,9 @@ class style_default_mf(style):
             'ytick.major.size': 1.,
             'axes.labelpad': 0.8
         }
-        color_dict = {
-            'grey':'#6c6c6c',
-            'red':'#c82f27',
-            'yellow':'#d99f42',
-            'green':'#63b84e',
-            'cyan':'#58a7a2',
-            'blue':'#4064af',
-            'purple':'#673695',
-            'violet':'#b83c7d',
-            'orange':'#a2462d',
-            'grass':'#8f9b47',
-            'dark_green':'#446e53',
-            'light_blue':'#508090',
-            'mild_blue':'#3c3f8b',
-            'mild_purple':'#823a7e'
-        }
+        color_dict = [
+            cm_pure, cm_pure2, cm_snplot, cm_zepeda, cm_dislocation
+        ]
         markers = ['s', 'o', '^', 'v', 'D', '<', '>', 'h', 'p', 'd', 'P', 'X']
         super().__init__(params, color_dict, markers, 'default_mf')
         self.cmap = cm.batlow 
