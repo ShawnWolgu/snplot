@@ -248,7 +248,8 @@ class pole_figure:
         'lines.linewidth': 0.5,
         'font.size': 2.5,
         'snplot.color_dict': 0,
-        'snplot.color_wheel': 0
+        'snplot.color_wheel': 0,
+        'snplot.outercontourwidth': 0.15
     }
 
     def __init__(self, dataset:list, fig_name:str = " ", case_path:str = "./", style:str = 'default', **plotargs):
@@ -285,7 +286,8 @@ class pole_figure:
         circlep = np.arange(0,2.2*np.pi,0.1*np.pi)
         circlex = np.sin(circlep)
         circley = np.cos(circlep)
-        ax.plot(circlex,circley,'k-')
+        outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
+        ax.plot(circlex,circley,'k-', linewidth = outercontourwidth)
 
         ax.axis('off')
         if self.have_colorbar:
@@ -370,7 +372,8 @@ class inverse_pole_figure(pole_figure):
         'lines.linewidth': 0.5,
         'font.size': 2.5,
         'snplot.color_dict': 0,
-        'snplot.color_wheel': 0
+        'snplot.color_wheel': 0,
+        'snplot.outercontourwidth': 0.15
     }
 
     def load_plot(self):
@@ -389,9 +392,10 @@ class inverse_pole_figure(pole_figure):
         for iaxis in ipf_axis:
             pts = np.append(pts,trans_to_xy(calc_ipf(iaxis)))
         pts = pts.reshape(-1,2)
-        ax.plot(pts[:,0],pts[:,1],'k-')
-        ax.plot([0,1.4141/3.4141],[0,0],'k-')
-        ax.plot([0,1/2.732],[0,1/2.732],'k-')
+        outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
+        ax.plot(pts[:,0],pts[:,1],'k-', linewidth = outercontourwidth)
+        ax.plot([0,1.4141/3.4141],[0,0],'k-', linewidth = outercontourwidth)
+        ax.plot([0,1/2.732],[0,1/2.732],'k-', linewidth = outercontourwidth)
 
         for id,idata in enumerate(self.dataset):
             id = (id + self.rc_params['snplot.color_wheel']) % len(color_list)

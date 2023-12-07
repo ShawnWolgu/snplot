@@ -22,5 +22,6 @@ property_label = {
     'yscale': 'Y-axis scale type',
     'snplot.color_dict': "Color Map Choose",
     'snplot.color_wheel': "Color Wheel",
-    'snplot.scatter.fill': 'Enable scatter fill'
+    'snplot.scatter.fill': 'Enable scatter fill',
+    'snplot.outercontourwidth': 'Outer contour width'
 }
