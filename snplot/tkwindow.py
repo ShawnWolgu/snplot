@@ -179,12 +179,12 @@ class tkwindow:
         self.status_monitor.configure(state="disabled")
 
     def rewrite_config(self):
-        config_name = "./config.json"
+        config_name = "./" + self.plot_obj.fig_name + "_config.json"
         self.plot_obj.export_config(config_name)
         self.update_status_monitor("Config written " + config_name)
 
     def load_config(self):
-        config_name = "./config.json"
+        config_name = "./" + self.plot_obj.fig_name + "_config.json"
         self.plot_obj.import_config(config_name)
         self.arg_dict = deepcopy({**self.plot_obj.plotargs, **self.plot_obj.rc_params})
         self.update_status_monitor("Config loaded " + config_name)
