@@ -1,16 +1,14 @@
 from . import data
 from .style import *
-from .snplot import plotargs_apply
-from .function import rcparams_predeal, rcparams_update, rcparams_combine, convert_config, trans_to_xy, calc_ipf, get_alignment, add_text
+from .function import rcparams_predeal, rcparams_update, rcparams_combine, convert_config, trans_to_xy, calc_ipf, add_text
 from .tkwindow import tkwindow
 from os import path as p
 from multimethod import multimethod
-from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.cm import ScalarMappable
-from copy import deepcopy
+from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 import json
 
 class xyplot:
@@ -32,6 +30,7 @@ class xyplot:
     @multimethod
     def __init__(self):
         self.dataset = []
+        self.plotset = []
         self.fig_name = "fig"
         self.case_path = './'
         self.plotargs = {}
@@ -39,16 +38,19 @@ class xyplot:
         self.rc_params = rcparams_update(self.rc_params, self.style.params)
         self.fig, self.ax = None, None
         self.have_colorbar = False
+        self.legend = None
 
     @multimethod
     def __init__(self, dataset:list, fig_name:str = "fig", case_path:str = "./", style:str = 'default', **plotargs):
         self.dataset = dataset
+        self.plotset = []
         self.fig_name = fig_name
         self.case_path = case_path
         self.plotargs = plotargs
         self.style = self.get_style(style)
         self.rc_params = rcparams_update(self.rc_params, self.style.params)
         self.have_colorbar = False
+        self.legend = None
 
     def add_data(self, d:data.xydata):
         self.dataset.append(d)
@@ -62,6 +64,7 @@ class xyplot:
         combined_rcp = rcparams_combine(self.style.params, self.rc_params)
         rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
         self.fig, self.ax = plt.subplots()
+        self.plotset = []
         for id,idata in enumerate(self.dataset):
             dict_id = self.rc_params['snplot.color_dict']
             id = (id + self.rc_params['snplot.color_wheel']) % len(self.style.color_dict[dict_id].keys())
@@ -75,38 +78,43 @@ class xyplot:
         if self.plotargs!={}:
             if 'havelegend' not in self.plotargs.keys():
                 self.plotargs['havelegend'] = True
-            self.ax = plotargs_apply(self.ax,self.plotargs)
+            self.plotargs_apply()
         else:
             self.plotargs['havelegend'] = True
-            self.ax = plotargs_apply(self.ax,self.plotargs)
+            self.plotargs_apply()
 
     @multimethod
     def add_plot(self, data:data.markdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
-        self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+        p, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+        self.plotset.append((p,))
 
     @multimethod
     def add_plot(self, data:data.linedata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
-        self.ax.plot(data.x, data.y, '-', color = color, label = data.label)
+        p, = self.ax.plot(data.x, data.y, '-', color = color, label = data.label)
+        self.plotset.append((p,))
 
     @multimethod
     def add_plot(self, data:data.dashdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
-        self.ax.plot(data.x, data.y, linestyle='dashed', color = color, label = data.label)
+        p, = self.ax.plot(data.x, data.y, linestyle='dashed', color = color, label = data.label)
+        self.plotset.append((p,))
 
     @multimethod
     def add_plot(self, data:data.linemarkdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
         if data.consistent:
-            self.ax.plot(data.x, data.y, marker = self.style.markers[id], markeredgecolor = color, linestyle = '-', color = color, label = data.label)
+            p, = self.ax.plot(data.x, data.y, marker = self.style.markers[id], markeredgecolor = color, linestyle = '-', color = color, label = data.label)
+            self.plotset.append((p,))
         else:
-            self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
-            self.ax.plot(data.lx, data.ly, '-', color = color, label = data.label_l)
+            p1, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+            p2, = self.ax.plot(data.lx, data.ly, '-', color = color, label = data.label_l)
+            self.plotset.append((p1,p2))
 
     @multimethod
     def add_plot(self, data:data.markdata_errorbar, id:int):
@@ -115,23 +123,65 @@ class xyplot:
         ewidth = 0.5*rcParams['lines.linewidth']
         capsize =0.4*rcParams['lines.markersize']
         self.ax.errorbar(data.x, data.y, data.yerr, fmt = 'none', ecolor=color, elinewidth=ewidth, capsize = capsize, barsabove=False)
-        self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label, markerfacecolor='white')
+        p, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label, markerfacecolor='white')
+        self.plotset.append((p,))
 
     @multimethod
     def add_plot(self, data:data.markdata_color, id:int):
         if self.rc_params['snplot.scatter.fill']:
             cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
             ec = cmap[list(cmap.keys())[self.rc_params['snplot.color_wheel']]]
-            self.ax.scatter(data.x, data.y, c=data.z, edgecolors=ec,marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
+            p, = self.ax.scatter(data.x, data.y, c=data.z, edgecolors=ec,marker=self.style.markers[id], label = data.label, cmap = self.style.cmap, vmin = data.vmin, vmax = data.vmax)
+            self.plotset.append((p,))
         else:
             norm = plt.Normalize(vmin=data.vmin, vmax=data.vmax)(data.z)
             cmap = self.style.cmap
             cols = cmap(norm)
-            self.ax.scatter(data.x, data.y, c='none', edgecolors= cols, marker=self.style.markers[id], label = data.label)
+            p, = self.ax.scatter(data.x, data.y, c='none', edgecolors= cols, marker=self.style.markers[id], label = data.label)
+            self.plotset.append((p,))
         cmap = self.style.cmap
         norm = plt.Normalize(vmin=data.vmin, vmax=data.vmax)
         self.colorbar_mappable = ScalarMappable(norm=norm, cmap=cmap)
         self.have_colorbar = True
+
+    def plotargs_apply(self):
+        if 'xlabel' in self.plotargs.keys():
+            self.ax.set_xlabel(self.plotargs['xlabel'])
+        if 'ylabel' in self.plotargs.keys():
+            self.ax.set_ylabel(self.plotargs['ylabel'])
+        if 'xlim' in self.plotargs.keys():
+            self.ax.set_xlim(self.plotargs['xlim'])
+        if 'ylim' in self.plotargs.keys():
+            self.ax.set_ylim(self.plotargs['ylim'])
+        if 'xscale' in self.plotargs.keys():
+            self.ax.set_xscale(self.plotargs['xscale'])
+            if self.plotargs['xlim'][0] <= 0:
+                self.ax.set_xlim([None, None])
+        if 'yscale' in self.plotargs.keys():
+            self.ax.set_yscale(self.plotargs['yscale'])
+            if self.plotargs['ylim'][0] <= 0:
+                self.ax.set_ylim([None, None])
+        if 'xticks' in self.plotargs.keys():
+            self.ax.set_xticks(self.plotargs['xticks'])
+        if 'yticks' in self.plotargs.keys():
+            self.ax.set_yticks(self.plotargs['yticks'])
+        if 'legendloc' in self.plotargs.keys():
+            if self.legend is not None:
+                self.legend.loc = self.plotargs['legendloc']
+            else:
+                self.legend = self.ax.legend(loc = self.plotargs['legendloc'])
+        if 'havelegend' in self.plotargs.keys():
+            if self.legend is not None:
+                self.legend.remove()
+            if self.plotargs['havelegend'] == False:
+                self.legend = self.ax.legend().set_visible(False)
+            else:
+                hdlength = 2
+                for iset in self.plotset:
+                    if len(iset) > 1:
+                        hdlength = 3
+                label_list = [i[0]._label for i in self.plotset]
+                self.ax.legend(self.plotset, label_list, numpoints=1, handlelength=hdlength, handler_map={tuple: HandlerTuple(ndivide=None)}).set_visible(True)
 
     def show(self):
         self.load_plot()
@@ -290,11 +340,41 @@ class pole_figure:
         ax.plot(circlex,circley,'k-', linewidth = outercontourwidth)
 
         ax.axis('off')
-        if self.have_colorbar:
-            fig.colorbar(ax.collections[0], ax=ax)
-        if self.plotargs!={}:
-            ax = plotargs_apply(ax,self.plotargs)
         self.fig, self.ax = fig, ax
+        if self.have_colorbar:
+            self.fig.colorbar(self.ax.collections[0], ax=self.ax)
+        if self.plotargs!={}:
+            self.ax = self.plotargs_apply()
+    
+    def plotargs_apply(self):
+        if 'xlabel' in self.plotargs.keys():
+            self.ax.set_xlabel(self.plotargs['xlabel'])
+        if 'ylabel' in self.plotargs.keys():
+            self.ax.set_ylabel(self.plotargs['ylabel'])
+        if 'xlim' in self.plotargs.keys():
+            self.ax.set_xlim(self.plotargs['xlim'])
+        if 'ylim' in self.plotargs.keys():
+            self.ax.set_ylim(self.plotargs['ylim'])
+        if 'xscale' in self.plotargs.keys():
+            self.ax.set_xscale(self.plotargs['xscale'])
+            if self.plotargs['xlim'][0] <= 0:
+                self.ax.set_xlim([None, None])
+        if 'yscale' in self.plotargs.keys():
+            self.ax.set_yscale(self.plotargs['yscale'])
+            if self.plotargs['ylim'][0] <= 0:
+                self.ax.set_ylim([None, None])
+        if 'xticks' in self.plotargs.keys():
+            self.ax.set_xticks(self.plotargs['xticks'])
+        if 'yticks' in self.plotargs.keys():
+            self.ax.set_yticks(self.plotargs['yticks'])
+        if 'legendloc' in self.plotargs.keys():
+            self.ax.legend(loc=self.plotargs['legendloc'])
+        if 'havelegend' in self.plotargs.keys():
+            if self.plotargs['havelegend'] == False:
+                self.ax.legend().set_visible(False)
+            else:
+                self.ax.legend().set_visible(True)
+        return self.ax
 
     def show(self):
         self.load_plot()
@@ -407,8 +487,8 @@ class inverse_pole_figure(pole_figure):
             add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
 
         ax.axis('off')
-        if self.have_colorbar:
-            fig.colorbar(ax.collections[0], ax=ax)
-        if self.plotargs!={}:
-            ax = plotargs_apply(ax,self.plotargs)
         self.fig, self.ax = fig, ax
+        if self.have_colorbar:
+            self.fig.colorbar(self.ax.collections[0], ax=self.ax)
+        if self.plotargs!={}:
+            self.ax = self.plotargs_apply(self.ax,self.plotargs)

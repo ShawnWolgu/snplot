@@ -12,6 +12,7 @@ A python code to draw figures in scientific papers. Based on self plotting habit
 - Add colormap switch and change the cmap sequence by colorwheel.
 - Modified the paddings and tick length in default style to make it more like a common Nature style.
 - Refactored part of the code.
+- Modified the legend style: when plot a linemarkdata with seperated data sources, the legend shows the mark and line styles in seperated columns
 
 ## Ver0.3
 - Fixed an issue with legends in linemarkdata (e.g., point, line, combination).

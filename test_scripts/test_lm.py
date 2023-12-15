@@ -9,7 +9,7 @@ y_ = df1["s33"]
 df2 = pd.read_csv("../samples/stress_grain_011.csv")
 lx_ = df2["e33"]
 ly_ = df2["s33"]
-linemdata = linemarkdata(x_, y_, lx_, ly_, "test_curve","line", segment=100)
+linemdata = linemarkdata(x_, y_, lx_, ly_, "test_curve", "line", segment=100)
 
 df3 = pd.read_csv("../samples/stress_grain_011.csv")
 x_ = df3["e33"]
