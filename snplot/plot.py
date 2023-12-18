@@ -17,6 +17,7 @@ class xyplot:
         'legend.frameon': True,
         'legend.framealpha': 0.5,
         'legend.fontsize' : 2.,
+        'legend.title_fontsize': 2.,
         'legend.edgecolor': 'black',
         'figure.figsize': (7.5, 6),
         'lines.markersize': 0.8,
@@ -171,6 +172,14 @@ class xyplot:
             else:
                 self.legend = self.ax.legend(loc = self.plotargs['legendloc'])
         if 'havelegend' in self.plotargs.keys():
+            if 'legend.title' in self.plotargs.keys():
+                legend_title = self.plotargs['legend.title']
+            else:
+                legend_title = None
+            if 'markerfirst' in self.plotargs.keys():
+                mkf = self.plotargs['markerfirst']
+            else:
+                mkf = True
             if self.legend is not None:
                 self.legend.remove()
             if self.plotargs['havelegend'] == False:
@@ -181,7 +190,13 @@ class xyplot:
                     if len(iset) > 1:
                         hdlength = 3
                 label_list = [i[0]._label for i in self.plotset]
-                self.ax.legend(self.plotset, label_list, numpoints=1, handlelength=hdlength, handler_map={tuple: HandlerTuple(ndivide=None)}).set_visible(True)
+                self.legend = self.ax.legend(
+                    self.plotset, label_list, numpoints=1, 
+                    handlelength=hdlength, 
+                    title=legend_title,
+                    markerfirst=mkf,
+                    handler_map={tuple: HandlerTuple(ndivide=None)}
+                ).set_visible(True)
 
     def show(self):
         self.load_plot()
@@ -237,6 +252,12 @@ class xyplot:
 
     def set_havelegend(self, have:bool):
         self.rc_params['havelegend'] = have
+
+    def set_legendtitle(self, title:str):
+        self.plotargs['legend.title'] = title
+
+    def set_plotarg(self, key:str, value):
+        self.plotargs[key] = value
 
     def get_style(self, style:str):
         if style == 'default':

@@ -29,6 +29,7 @@ class style_default(style):
             'axes.labelpad': 1., 
             'legend.frameon': False,
             'legend.fontsize': 1.8,
+            'legend.title_fontsize': 1.8,
             'lines.linewidth' : 0.33,
             'lines.markersize' : 1.15,
             'font.size': 1.8
