@@ -88,7 +88,10 @@ class xyplot:
     def add_plot(self, data:data.markdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
-        p, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+        if data.fill:
+            p, = self.ax.plot(data.x, data.y, self.style.markers[id], markerfacecolor = color, label = data.label)
+        else:
+            p, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
         self.plotset.append((p,))
 
     @multimethod
@@ -110,11 +113,18 @@ class xyplot:
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
         if data.consistent:
-            p, = self.ax.plot(data.x, data.y, marker = self.style.markers[id], markeredgecolor = color, linestyle = '-', color = color, label = data.label)
+            if data.fill:
+                p, = self.ax.plot(data.x, data.y, marker = self.style.markers[id], markerfacecolor = color, linestyle = '-', color = color, label = data.label)
+            else:
+                p, = self.ax.plot(data.x, data.y, marker = self.style.markers[id], markeredgecolor = color, linestyle = '-', color = color, label = data.label)
             self.plotset.append((p,))
         else:
-            p1, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
-            p2, = self.ax.plot(data.lx, data.ly, '-', color = color, label = data.label_l)
+            if data.fill:
+                p1, = self.ax.plot(data.x, data.y, self.style.markers[id], markerfacecolor = color, label = data.label)
+                p2, = self.ax.plot(data.lx, data.ly, '-', color = color, label = data.label_l)
+            else:
+                p1, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label)
+                p2, = self.ax.plot(data.lx, data.ly, '-', color = color, label = data.label_l)
             self.plotset.append((p1,p2))
 
     @multimethod
@@ -123,12 +133,17 @@ class xyplot:
         color = cmap[list(cmap.keys())[id]]
         ewidth = 0.5*rcParams['lines.linewidth']
         capsize =0.4*rcParams['lines.markersize']
-        self.ax.errorbar(data.x, data.y, data.yerr, fmt = 'none', ecolor=color, elinewidth=ewidth, capsize = capsize, barsabove=False)
-        p, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label, markerfacecolor='white')
+        if data.fill:
+            self.ax.errorbar(data.x, data.y, data.yerr, fmt = 'none', ecolor=color, elinewidth=ewidth, capsize = capsize, barsabove=False)
+            p, = self.ax.plot(data.x, data.y, self.style.markers[id], markerfacecolor = color, label = data.label)
+        else:
+            self.ax.errorbar(data.x, data.y, data.yerr, fmt = 'none', ecolor=color, elinewidth=ewidth, capsize = capsize, barsabove=False)
+            p, = self.ax.plot(data.x, data.y, self.style.markers[id], markeredgecolor = color, label = data.label, markerfacecolor='white')
         self.plotset.append((p,))
 
     @multimethod
     def add_plot(self, data:data.markdata_color, id:int):
+        # The color logic has not been synchronized with the other plot types
         if self.rc_params['snplot.scatter.fill']:
             cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
             ec = cmap[list(cmap.keys())[self.rc_params['snplot.color_wheel']]]
@@ -347,13 +362,22 @@ class pole_figure:
         fig, ax = plt.subplots()
         for id,idata in enumerate(self.dataset):
             id = (id + self.rc_params['snplot.color_wheel']) % len(color_list)
-            if idata.plottype != 'pole_figure':
-                raise ValueError('Data type error!')
-            ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
-            ax.plot(idata.x[0], idata.y[0], 'o', color = cd[color_list[id]])
-            ax.plot(idata.x[-1], idata.y[-1], 's', color = cd[color_list[id]])
-            add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
-
+            if type(idata) is not tuple: 
+                if idata.plottype != 'pole_figure':
+                    raise ValueError('Data type error!')
+                ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
+                ax.plot(idata.x[0], idata.y[0], 'o', color = cd[color_list[id]])
+                ax.plot(idata.x[-1], idata.y[-1], 's', color = cd[color_list[id]])
+                add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
+            else:
+                linetypes = ['-', '--', '-.', ':']
+                for idd, ituple in enumerate(idata):
+                    if ituple.plottype != 'pole_figure':
+                        raise ValueError('Data type error!')
+                    ax.plot(ituple.x, ituple.y, linetypes[idd], color = cd[color_list[id]])
+                    ax.plot(ituple.x[0], ituple.y[0], 'o', color = cd[color_list[id]])
+                    ax.plot(ituple.x[-1], ituple.y[-1], 's', color = cd[color_list[id]])
+                add_text(ax, idata[0].label, idata[0].x[0], idata[0].y[0], pos=idata[0].label_pos, color = cd[color_list[id]])
         circlep = np.arange(0,2.2*np.pi,0.1*np.pi)
         circlex = np.sin(circlep)
         circley = np.cos(circlep)
@@ -500,13 +524,22 @@ class inverse_pole_figure(pole_figure):
 
         for id,idata in enumerate(self.dataset):
             id = (id + self.rc_params['snplot.color_wheel']) % len(color_list)
-            if idata.plottype != 'inverse_pole_figure':
-                raise ValueError('Data type error!')
-            ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
-            ax.plot(idata.x[0], idata.y[0], 'o', color = cd[color_list[id]])
-            ax.plot(idata.x[-1], idata.y[-1], 's', color = cd[color_list[id]])
-            add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
-
+            if type(idata) is not tuple: 
+                if idata.plottype != 'inverse_pole_figure':
+                    raise ValueError('Data type error!')
+                ax.plot(idata.x, idata.y, '-', color = cd[color_list[id]])
+                ax.plot(idata.x[0], idata.y[0], 'o', color = cd[color_list[id]])
+                ax.plot(idata.x[-1], idata.y[-1], 's', color = cd[color_list[id]])
+                add_text(ax, idata.label, idata.x[0], idata.y[0], pos=idata.label_pos, color = cd[color_list[id]])
+            else:
+                linetypes = ['-', '--', '-.', ':']
+                for idd, ituple in enumerate(idata):
+                    if ituple.plottype != 'inverse_pole_figure':
+                        raise ValueError('Data type error!')
+                    ax.plot(ituple.x, ituple.y, linetypes[idd%4], color = cd[color_list[id]])
+                    ax.plot(ituple.x[0], ituple.y[0], 'o', color = cd[color_list[id]])
+                    ax.plot(ituple.x[-1], ituple.y[-1], 's', color = cd[color_list[id]])
+                add_text(ax, idata[0].label, idata[0].x[0], idata[0].y[0], pos=idata[0].label_pos, color = cd[color_list[id]])
         ax.axis('off')
         self.fig, self.ax = fig, ax
         if self.have_colorbar:

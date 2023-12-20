@@ -20,11 +20,12 @@ class xydata:
         self.x, self.y = interpolate_data(self._x, self._y, jump)
 
 class markdata(xydata):
-    def __init__(self, x_, y_, label:str, segment:int=1):
+    def __init__(self, x_, y_, label:str, segment:int=1, fill:bool=False):
         super().__init__(x_, y_, label)
         self.plottype = 'mark'
         self.x = self._x[0::segment]
         self.y = self._y[0::segment]
+        self.fill = fill
     def set_segment(self, segment:int):
         print("set segment in markdata class")
         self.x = self._x[0::segment]
@@ -41,8 +42,8 @@ class dashdata(xydata):
         self.plottype = 'dash'
 
 class linemarkdata(markdata):
-    def __init__(self, x_, y_, lx_=None, ly_=None, label:str="", label_l:str="", segment:int=1):
-        super().__init__(x_, y_, label, segment)
+    def __init__(self, x_, y_, lx_=None, ly_=None, label:str="", label_l:str="", segment:int=1, fill:bool=False):
+        super().__init__(x_, y_, label, segment, fill)
         if lx_ is None and ly_ is None:
             self._lx = np.array(x_)
             self._ly = np.array(y_)
@@ -66,8 +67,8 @@ class linemarkdata(markdata):
 
 class markdata_errorbar(markdata):
     @multimethod
-    def __init__(self, x_, y_, yerr_, label:str, segment:int=1):
-        super().__init__(x_, y_, label, segment)
+    def __init__(self, x_, y_, yerr_, label:str, segment:int=1, fill:bool=False):
+        super().__init__(x_, y_, label, segment, fill)
         if isinstance(yerr_, float):
             self._yerr = np.ones(shape=(2,len(x_))) * yerr_
         elif len(np.array(yerr_).shape) == 1:
@@ -77,14 +78,14 @@ class markdata_errorbar(markdata):
         self.plottype = 'mark_errorbar'
         self.set_segment(segment)
     @multimethod
-    def __init__(self, x_, y_, yerr_up, yerr_low, label: str, segment: int = 1):
-        super().__init__(x_, y_, label, segment)
+    def __init__(self, x_, y_, yerr_up, yerr_low, label: str, segment: int = 1, fill:bool=False):
+        super().__init__(x_, y_, label, segment, fill)
         self._yerr = np.array([yerr_low, yerr_up])
         self.plottype = 'mark_errorbar'
         self.set_segment(segment)
     @multimethod
-    def __init__(self, x_, y_, yerr_up_x, yerr_up_y, yerr_low_x, yerr_low_y, label: str, segment: int = 1):
-        super().__init__(x_, y_, label, segment)
+    def __init__(self, x_, y_, yerr_up_x, yerr_up_y, yerr_low_x, yerr_low_y, label: str, segment: int = 1, fill:bool=False):
+        super().__init__(x_, y_, label, segment, fill)
         yerr_up = interpolate_data_xbase(np.array(yerr_up_x), np.array(yerr_up_y), self._x)
         yerr_low = interpolate_data_xbase(np.array(yerr_low_x), np.array(yerr_low_y), self._x)
         self._yerr = np.array([self._y - yerr_low, yerr_up - self._y])
@@ -102,8 +103,8 @@ class markdata_errorbar(markdata):
         _, self._yerr[1,:] = interpolate_data(self._x, self._yerr[1,:], jump)
 
 class markdata_color(markdata):
-    def __init__(self, x_, y_, z_, label:str, segment:int=1):
-        super().__init__(x_, y_, label, segment)
+    def __init__(self, x_, y_, z_, label:str, segment:int=1, fill:bool=False):
+        super().__init__(x_, y_, label, segment, fill)
         self._z = np.array(z_)
         self.z = self._z
         self.vmin = np.min(self._z)
