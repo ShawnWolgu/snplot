@@ -88,6 +88,8 @@ class xyplot:
     def add_plot(self, data:data.markdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
+        if data.color is not None:
+            color = data.color
         if data.fill:
             p, = self.ax.plot(data.x, data.y, self.style.markers[id], markerfacecolor = color, label = data.label)
         else:
@@ -98,13 +100,17 @@ class xyplot:
     def add_plot(self, data:data.linedata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
-        p, = self.ax.plot(data.x, data.y, '-', color = color, label = data.label)
+        if data.color is not None:
+            color = data.color
+        p, = self.ax.plot(data.x, data.y, data.linetype, color = color, label = data.label)
         self.plotset.append((p,))
 
     @multimethod
     def add_plot(self, data:data.dashdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
+        if data.color is not None:
+            color = data.color
         p, = self.ax.plot(data.x, data.y, linestyle='dashed', color = color, label = data.label)
         self.plotset.append((p,))
 
@@ -112,6 +118,8 @@ class xyplot:
     def add_plot(self, data:data.linemarkdata, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
+        if data.color is not None:
+            color = data.color
         if data.consistent:
             if data.fill:
                 p, = self.ax.plot(data.x, data.y, marker = self.style.markers[id], markerfacecolor = color, linestyle = '-', color = color, label = data.label)
@@ -131,6 +139,8 @@ class xyplot:
     def add_plot(self, data:data.markdata_errorbar, id:int):
         cmap = self.style.color_dict[self.rc_params['snplot.color_dict']]
         color = cmap[list(cmap.keys())[id]]
+        if data.color is not None:
+            color = data.color
         ewidth = 0.5*rcParams['lines.linewidth']
         capsize =0.4*rcParams['lines.markersize']
         if data.fill:

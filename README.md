@@ -16,6 +16,8 @@ A python code to draw figures in scientific papers. Based on self plotting habit
   When plot a linemarkdata with seperated data sources, the legend shows the mark and line styles in seperated columns.
   Now the legend title can be added and also can change the font size.
   And also can switch the position of the markers and labels 
+- Add arg to control if markers are filled
+- Add arg to control line and markerdate colors
   
 
 ## Ver0.3
