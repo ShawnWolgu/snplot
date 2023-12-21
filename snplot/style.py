@@ -37,7 +37,7 @@ class style_default(style):
         color_dict = [
             cm_pure, cm_pure2, cm_snplot, cm_zepeda, cm_dislocation
         ]
-        markers = ['s', 'o', '^', 'v', 'D', '<', '>', 'h', 'p', 'd', 'P', 'X']
+        markers = ['s', 'o', '^', 'v', 'D', '<', '>', 'h', 'p', 'd', 'P', 'X', '*', "H"]
         super().__init__(params, color_dict, markers, 'default')
         self.cmap = cm.batlow 
 

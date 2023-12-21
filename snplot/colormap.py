@@ -10,7 +10,9 @@ cm_pure = {
     'purple' : '#8000ff',
     'navy' : '#000080',
     'rose' : '#ff0080',
-    'yellow' : '#ffff00'
+    'yellow' : '#ffff00',
+    'spring' : '#00ff80',
+    'sky' : '#0080ff',
 }
 
 cm_pure2 = {
@@ -25,7 +27,9 @@ cm_pure2 = {
     'navy' : '#0000bf',
     'green': '#00ff00',
     'rose' : '#ff00bf',
-    'purple' : '#7f00ff'
+    'purple' : '#7f00ff',
+    "earth": "#E4B363",
+    "wine": "#6B2737"
 }
 
 cm_snplot = {
@@ -42,7 +46,9 @@ cm_snplot = {
     'grass':'#8f9b47',
     'mild_purple':'#823a7e',
     'dark_green':'#446e53',
-    'light_blue':'#508090'
+    'light_blue':'#508090',
+    "pink": "#FF9FE5",
+    "lemon": "#F4F1BB"
 }
 
 cm_zepeda = {
@@ -58,6 +64,8 @@ cm_zepeda = {
     'skin':'#e0b9bf',
     'navy':'#2c5052',
     'black':'#000000',
+    "sunset": "#E6C79C",
+    "garnet": "#6A3937"
 }
 
 cm_dislocation = {
@@ -72,5 +80,7 @@ cm_dislocation = {
     'blueberry':'#8484ff',
     'cyan':'#008495',
     'brown':'#a0534a',
-    'green':'#00ff00'
+    'green':'#00ff00',
+    "pink": "#FF9FE5",
+    "lemon": "#F4F1BB"
 }
