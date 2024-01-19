@@ -133,16 +133,19 @@ class eulerdata:
         self.plottype = 'pole_figure'
         self.x = np.array([])
         self.y = np.array([])
+        self.z = np.array([])
         for i in range(len(self.phi1)):
             _axis = Euler_trans(np.array([self.phi1[i], self.Phi[i], self.phi2[i]]), axis)
             _axis = _axis.reshape(-1)
             coord = trans_to_xy(_axis)
             self.x = np.append(self.x, coord[0])
             self.y = np.append(self.y, coord[1])
+            self.z = np.append(self.z, coord[2])
     def to_inverse_pole_figure(self, axis):
         self.plottype = 'inverse_pole_figure'
         self.x = np.array([])
         self.y = np.array([])
+        self.z = np.array([])
         for i in range(len(self.phi1)):
             _axis = Euler_trans(np.array([self.phi1[i], self.Phi[i], self.phi2[i]]), axis)
             _axis = _axis.reshape(-1)
@@ -150,4 +153,5 @@ class eulerdata:
             coord = trans_to_xy(ipf_axis)
             self.x = np.append(self.x, coord[0])
             self.y = np.append(self.y, coord[1])
+            self.z = np.append(self.z, coord[2])
 
