@@ -26,5 +26,9 @@ property_label = {
     'snplot.color_dict': "Color Map Choose",
     'snplot.color_wheel': "Color Wheel",
     'snplot.scatter.fill': 'Enable scatter fill',
-    'snplot.outercontourwidth': 'Outer contour width'
+    'snplot.outercontourwidth': 'Outer contour width',
+    'snplot.contour_x_label': 'Contour x-axis label',
+    'snplot.contour_y_label': 'Contour y-axis label',
+    'snplot.contour_resolution': 'Contour resolution',
+    'snplot.contour_axis_on': 'Enable contour axis'
 }

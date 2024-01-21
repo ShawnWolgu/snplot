@@ -6,7 +6,7 @@ from os import path as p
 from multimethod import multimethod
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
+from matplotlib import rcParams, patches
 from matplotlib.cm import ScalarMappable
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 import json
@@ -556,3 +556,52 @@ class inverse_pole_figure(pole_figure):
             self.fig.colorbar(self.ax.collections[0], ax=self.ax)
         if self.plotargs!={}:
             self.ax = self.plotargs_apply(self.ax,self.plotargs)
+
+
+class pole_figure_contour(pole_figure):
+    rc_params = {
+        'figure.figsize': (8, 6),
+        'font.size': 2.5,
+        'snplot.outercontourwidth': 0.15,
+        'snplot.contour_x_label': 'X',
+        'snplot.contour_y_label': 'Y',
+        'snplot.contour_resolution': 20,
+        'snplot.contour_axis_on': True
+    }
+
+    def load_plot(self):
+        try:
+            plt.close(self.plt)
+        except:
+            pass
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
+        rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
+        fig, ax = plt.subplots()
+        if type(self.dataset) is list:
+            idata = self.dataset[0]
+        else:
+            idata = self.dataset
+        if idata.plottype != 'pole_figure':
+            raise ValueError('Data type error!')
+        resol = self.rc_params['snplot.contour_resolution']
+        correction_factor = 1 / (1 + idata.z)**2 * (2/resol)**(-2)
+        H, xedges, yedges = np.histogram2d(idata.x, idata.y, bins=[np.linspace(-1, 1, resol), np.linspace(-1, 1, resol)], weights=correction_factor*idata.weight)
+        patch = patches.Circle((0, 0), radius=1, transform=ax.transData)
+        im = ax.imshow(H, extent=[-1, 1, -1, 1], origin='lower', cmap='jet', interpolation='bilinear')
+        im.set_clip_path(patch)
+        if self.have_colorbar:
+            fig.colorbar(im, ax=ax, label='Density', pad=0.1)
+        ax.text(1.01, 0.5, self.rc_params['snplot.contour_x_label'], transform=ax.transAxes, ha='left', va='center')
+        ax.text(0.5, 1.01, self.rc_params['snplot.contour_y_label'], transform=ax.transAxes, ha='center', va='bottom')
+        outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
+        circlep = np.arange(0,2.2*np.pi,0.01*np.pi)
+        circlex = np.sin(circlep)
+        circley = np.cos(circlep)
+        ax.plot(circlex,circley,'k-', linewidth = outercontourwidth)
+        if self.rc_params['snplot.contour_axis_on']:
+            ax.plot([-1,1], [0,0], c = 'white',linestyle= "--", dashes=(5,5), linewidth = outercontourwidth * 0.8)
+            ax.plot([0,0], [-1,1], c = 'white',linestyle= "--", dashes=(5,5), linewidth = outercontourwidth * 0.8)
+        ax.axis('off')
+        self.fig, self.ax = fig, ax
+        if self.plotargs!={}:
+            self.ax = self.plotargs_apply()

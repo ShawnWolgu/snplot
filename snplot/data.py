@@ -121,10 +121,14 @@ class eulerdata:
     def __init__(self):
         self.plottype = 'blankeuler'
     @multimethod
-    def __init__(self, phi1_, Phi_, phi2_,label:str, label_pos:str='top', rotation_="zxz", segment:int=1):
+    def __init__(self, phi1_, Phi_, phi2_,label:str, weight_ = None, label_pos:str='top', rotation_="zxz", segment:int=1):
         self.phi1 = np.array(phi1_)[0::segment]
         self.Phi = np.array(Phi_)[0::segment]
         self.phi2 = np.array(phi2_)[0::segment]
+        if weight_ is None:
+            self.weight = np.ones(len(self.phi1))/len(self.phi1)
+        else:
+            self.weight = np.array(weight_)[0::segment]
         self.rotation = rotation_
         self.label = label
         self.label_pos = label_pos
