@@ -7,6 +7,7 @@ from multimethod import multimethod
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams, patches
+from matplotlib.path import Path
 from matplotlib.cm import ScalarMappable
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 import json
@@ -525,7 +526,7 @@ class inverse_pole_figure(pole_figure):
         ipf_axis = np.hstack((np.ones((31,1)),np.arange(0,1.001+1/30,1/30)[:31].reshape(31,1),np.ones((31,1))))
         pts = np.array([[]])
         for iaxis in ipf_axis:
-            pts = np.append(pts,trans_to_xy(calc_ipf(iaxis)))
+            pts = np.append(pts,trans_to_xy(calc_ipf(iaxis))[:2])
         pts = pts.reshape(-1,2)
         outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
         ax.plot(pts[:,0],pts[:,1],'k-', linewidth = outercontourwidth)
@@ -587,7 +588,7 @@ class pole_figure_contour(pole_figure):
         correction_factor = 1 / (1 + idata.z)**2 * (2/resol)**(-2)
         H, xedges, yedges = np.histogram2d(idata.x, idata.y, bins=[np.linspace(-1, 1, resol), np.linspace(-1, 1, resol)], weights=correction_factor*idata.weight)
         patch = patches.Circle((0, 0), radius=1, transform=ax.transData)
-        im = ax.imshow(H, extent=[-1, 1, -1, 1], origin='lower', cmap='jet', interpolation='bilinear')
+        im = ax.imshow(H.T, extent=[-1, 1, -1, 1], origin='lower', cmap='jet', interpolation='bilinear')
         im.set_clip_path(patch)
         if self.have_colorbar:
             fig.colorbar(im, ax=ax, label='Density', pad=0.1)
@@ -601,6 +602,63 @@ class pole_figure_contour(pole_figure):
         if self.rc_params['snplot.contour_axis_on']:
             ax.plot([-1,1], [0,0], c = 'white',linestyle= "--", dashes=(5,5), linewidth = outercontourwidth * 0.8)
             ax.plot([0,0], [-1,1], c = 'white',linestyle= "--", dashes=(5,5), linewidth = outercontourwidth * 0.8)
+        ax.axis('off')
+        self.fig, self.ax = fig, ax
+        if self.plotargs!={}:
+            self.ax = self.plotargs_apply()
+
+class inverse_pole_figure_contour(pole_figure):
+    rc_params = {
+        'figure.figsize': (9, 6),
+        'font.size': 2.5,
+        'snplot.outercontourwidth': 0.15,
+        'snplot.contour_resolution': 20
+    }
+
+    def load_plot(self):
+        try:
+            plt.close(self.plt)
+        except:
+            pass
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
+        rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
+        fig, ax = plt.subplots()
+
+        if type(self.dataset) is list:
+            idata = self.dataset[0]
+        else:
+            idata = self.dataset
+        if idata.plottype != 'inverse_pole_figure':
+            raise ValueError('Data type error!')
+
+        ipf_axis = np.hstack((np.ones((31,1)),np.arange(0,1.001+1/30,1/30)[:31].reshape(31,1),np.ones((31,1))))
+        pts = np.array([[]])
+        pts = np.append(pts,np.array([0,0]))
+        pts = np.append(pts,np.array([(np.pi-2)/np.pi,0]))
+        for iaxis in ipf_axis:
+            pts = np.append(pts,trans_to_xy(calc_ipf(iaxis))[:2])
+        pts = np.append(pts,np.array([1./2.732,1./2.732]))
+        pts = np.append(pts,np.array([0,0]))
+        pts = pts.reshape(-1,2)
+        verts = []
+        codes = []
+        for ipt in pts:
+            verts.append((ipt[0],ipt[1]))
+            codes.append(Path.LINETO)
+        codes[0] = Path.MOVETO
+        codes[-1] = Path.CLOSEPOLY
+        outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
+        patch = patches.PathPatch(Path(verts, codes), facecolor='none', lw=outercontourwidth)
+
+        resol = self.rc_params['snplot.contour_resolution']
+        correction_factor = 1 / (1 + idata.z)**2 * (resol/1.4141*3.4141)*(resol * 2.732)
+        H, xedges, yedges = np.histogram2d(idata.x, idata.y, bins=[np.linspace(-0.02, 1.4141/3.4141, resol), np.linspace(-0.02, 1/2.732, resol)], weights=correction_factor*idata.weight)
+        im = ax.imshow(H.T, extent=[-0.02, 1.4141/3.4141, -0.02, 1/2.732], origin='lower', cmap='jet', interpolation='bilinear')
+        ax.add_patch(patch)
+        im.set_clip_path(patch)
+        if self.have_colorbar:
+            fig.colorbar(im, ax=ax, label='Density', pad=0.1)
+
         ax.axis('off')
         self.fig, self.ax = fig, ax
         if self.plotargs!={}:
