@@ -30,5 +30,6 @@ property_label = {
     'snplot.contour_x_label': 'Contour x-axis label',
     'snplot.contour_y_label': 'Contour y-axis label',
     'snplot.contour_resolution': 'Contour resolution',
-    'snplot.contour_axis_on': 'Enable contour axis'
+    'snplot.contour_axis_on': 'Enable contour axis',
+    'snplot.contour.cmap': 'Contour color map'
 }

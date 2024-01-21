@@ -109,3 +109,4 @@ def add_text(ax, text, x, y, pos = 'u', **kwargs):
     y_scale = max(0.01*y, 0.002)
     ax.text(x+x_scale * alignment['offset'][0], y+y_scale * alignment['offset'][1], text, ha=alignment['ha'], va=alignment['va'], **kwargs)
     return ax
+

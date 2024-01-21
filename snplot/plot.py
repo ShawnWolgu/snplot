@@ -2,6 +2,7 @@ from . import data
 from .style import *
 from .function import rcparams_predeal, rcparams_update, rcparams_combine, convert_config, trans_to_xy, calc_ipf, add_text
 from .tkwindow import tkwindow
+from .colormap import contour_colormap
 from os import path as p
 from multimethod import multimethod
 import numpy as np
@@ -567,7 +568,8 @@ class pole_figure_contour(pole_figure):
         'snplot.contour_x_label': 'X',
         'snplot.contour_y_label': 'Y',
         'snplot.contour_resolution': 20,
-        'snplot.contour_axis_on': True
+        'snplot.contour_axis_on': True,
+        'snplot.contour.cmap': 'jet'
     }
 
     def load_plot(self):
@@ -588,7 +590,11 @@ class pole_figure_contour(pole_figure):
         correction_factor = 1 / (1 + idata.z)**2 * (2/resol)**(-2)
         H, xedges, yedges = np.histogram2d(idata.x, idata.y, bins=[np.linspace(-1, 1, resol), np.linspace(-1, 1, resol)], weights=correction_factor*idata.weight)
         patch = patches.Circle((0, 0), radius=1, transform=ax.transData)
-        im = ax.imshow(H.T, extent=[-1, 1, -1, 1], origin='lower', cmap='jet', interpolation='bilinear')
+        if contour_colormap.keys().__contains__(self.rc_params['snplot.contour.cmap']):
+            cmap = contour_colormap[self.rc_params['snplot.contour.cmap']]
+        else:
+            cmap = 'jet'
+        im = ax.imshow(H.T, extent=[-1, 1, -1, 1], origin='lower', cmap=cmap, interpolation='bilinear')
         im.set_clip_path(patch)
         if self.have_colorbar:
             fig.colorbar(im, ax=ax, label='Density', pad=0.1)
@@ -612,7 +618,8 @@ class inverse_pole_figure_contour(pole_figure):
         'figure.figsize': (9, 6),
         'font.size': 2.5,
         'snplot.outercontourwidth': 0.15,
-        'snplot.contour_resolution': 20
+        'snplot.contour_resolution': 20,
+        'snplot.contour.cmap': 'jet'
     }
 
     def load_plot(self):
@@ -653,7 +660,11 @@ class inverse_pole_figure_contour(pole_figure):
         resol = self.rc_params['snplot.contour_resolution']
         correction_factor = 1 / (1 + idata.z)**2 * (resol/1.4141*3.4141)*(resol * 2.732)
         H, xedges, yedges = np.histogram2d(idata.x, idata.y, bins=[np.linspace(-0.02, 1.4141/3.4141, resol), np.linspace(-0.02, 1/2.732, resol)], weights=correction_factor*idata.weight)
-        im = ax.imshow(H.T, extent=[-0.02, 1.4141/3.4141, -0.02, 1/2.732], origin='lower', cmap='jet', interpolation='bilinear')
+        if contour_colormap.keys().__contains__(self.rc_params['snplot.contour.cmap']):
+            cmap = contour_colormap[self.rc_params['snplot.contour.cmap']]
+        else:
+            cmap = 'jet'
+        im = ax.imshow(H.T, extent=[-0.02, 1.4141/3.4141, -0.02, 1/2.732], origin='lower', cmap=cmap, interpolation='bilinear')
         ax.add_patch(patch)
         im.set_clip_path(patch)
         if self.have_colorbar:

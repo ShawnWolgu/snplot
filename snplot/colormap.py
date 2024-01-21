@@ -1,3 +1,6 @@
+from cmcrameri import cm
+from matplotlib import cm as mcm
+
 cm_pure = {
     'black': '#000000',
     'red' : '#ff0000',
@@ -83,4 +86,11 @@ cm_dislocation = {
     'green':'#00ff00',
     "pink": "#FF9FE5",
     "lemon": "#F4F1BB"
+}
+
+contour_colormap = {
+    'batlow': cm.batlow,
+    'viridis': mcm.get_cmap('viridis'),
+    'jet': mcm.get_cmap('jet'),
+    'rainbow': mcm.get_cmap('rainbow')
 }
