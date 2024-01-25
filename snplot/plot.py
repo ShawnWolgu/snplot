@@ -296,14 +296,14 @@ class xyplot:
 
     def export_config(self, path:str = None):
         config = {}
-        path = self.case_path + self.fig_name + '.json' if path is None else path
+        path = "./" + self.fig_name + '_config.json' if path is None else path
         config.update(self.plotargs)
         config['style'] = self.style.name
         config['rcparams'] = self.rc_params
         json.dump(config, open(path, 'w'),indent = 4)
 
     def import_config(self, path:str = None):
-        path = self.case_path + self.fig_name + '.json' if path is None else path
+        path = "./" + self.fig_name + '_config.json' if path is None else path
         config = json.load(open(path, 'r'))
         self.style = self.get_style(config['style'])
         config.pop('style')
