@@ -7,6 +7,9 @@ A python code to draw figures in scientific papers. Based on self plotting habit
 - Can call interactive UI to do detailed adjustment
 
 # Update Log
+## Ver0.5
+- New plot type available: pole figure contour, inverse pole figure contour
+
 ## Ver0.4
 - Added a small status monitor. It can reflect reading or writing the config file and exporting the current image.
 - Add colormap switch and change the cmap sequence by colorwheel.

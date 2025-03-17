@@ -7,7 +7,7 @@ from os import path
 dataset = []
 label_pos = ['b','u','ul','ur','b','b', 'ur']
 for idx, case in enumerate(["001", "111", "112", "213", "101", "102", "212"]):
-    csvpath = path.join("~/Desktop/Working/0716_SXCpp/SingleCrystalCpp/debug/0912_Fit/02_Al_fit/5E7_cases/", case, "euler_angle_grain.csv")
+    csvpath = path.join("~/Works/2023/0619_SRS Manuscript/0912_Cases/02_Al_fit/5E7_cases/", case, "euler_angle_grain.csv")
     try:
         euler = read_csv(csvpath)
     except:

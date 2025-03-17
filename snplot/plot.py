@@ -1,14 +1,19 @@
 from . import data
 from .style import *
-from .function import rcparams_predeal, rcparams_update, rcparams_combine, convert_config, trans_to_xy, calc_ipf, add_text
+from .function import rcparams_predeal, rcparams_update, rcparams_combine, convert_config, trans_to_xy, calc_ipf, add_text, spherical_triangle_area_vectorized, generate_diffusion_kernel
 from .tkwindow import tkwindow
+from .colormap import contour_colormap
 from os import path as p
 from multimethod import multimethod
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
+from matplotlib import rcParams, patches
+from matplotlib.path import Path
 from matplotlib.cm import ScalarMappable
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
+from scipy.signal import convolve2d
+from scipy import signal
+
 import json
 
 class xyplot:
@@ -294,14 +299,14 @@ class xyplot:
 
     def export_config(self, path:str = None):
         config = {}
-        path = self.case_path + self.fig_name + '.json' if path is None else path
+        path = "./" + self.fig_name + '_config.json' if path is None else path
         config.update(self.plotargs)
         config['style'] = self.style.name
         config['rcparams'] = self.rc_params
         json.dump(config, open(path, 'w'),indent = 4)
 
     def import_config(self, path:str = None):
-        path = self.case_path + self.fig_name + '.json' if path is None else path
+        path = "./" + self.fig_name + '_config.json' if path is None else path
         config = json.load(open(path, 'r'))
         self.style = self.get_style(config['style'])
         config.pop('style')
@@ -525,7 +530,7 @@ class inverse_pole_figure(pole_figure):
         ipf_axis = np.hstack((np.ones((31,1)),np.arange(0,1.001+1/30,1/30)[:31].reshape(31,1),np.ones((31,1))))
         pts = np.array([[]])
         for iaxis in ipf_axis:
-            pts = np.append(pts,trans_to_xy(calc_ipf(iaxis)))
+            pts = np.append(pts,trans_to_xy(calc_ipf(iaxis))[:2])
         pts = pts.reshape(-1,2)
         outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
         ax.plot(pts[:,0],pts[:,1],'k-', linewidth = outercontourwidth)
@@ -556,3 +561,211 @@ class inverse_pole_figure(pole_figure):
             self.fig.colorbar(self.ax.collections[0], ax=self.ax)
         if self.plotargs!={}:
             self.ax = self.plotargs_apply(self.ax,self.plotargs)
+
+
+class pole_figure_contour(pole_figure):
+    rc_params = {
+        'figure.figsize': (8, 6),
+        'font.size': 2.5,
+        'snplot.outercontourwidth': 0.15,
+        'snplot.contour_x_label': 'X',
+        'snplot.contour_y_label': 'Y',
+        'snplot.contour_resolution': 20,
+        'snplot.contour_axis_on': True,
+        'snplot.contour.cmap': 'jet',
+        'snplot.contour.lim': (0, 50),
+        'snplot.contour.gaussian.ratio' : 0.1,
+        'snplot.contour.gaussian.sigma' : 0.05
+    }
+    
+    def load_plot(self):
+        try:
+            plt.close(self.plt)
+        except (AttributeError, TypeError):
+            pass
+
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
+        rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
+        fig, ax = plt.subplots()
+
+        if type(self.dataset) is list:
+            idata = self.dataset[0]
+        else:
+            idata = self.dataset
+        if idata.plottype != 'pole_figure':
+            raise ValueError('Data type error!')
+
+        resol = self.rc_params['snplot.contour_resolution']
+        x_edges = np.linspace(-1., 1., resol)
+        y_edges = np.linspace(-1., 1., resol)
+
+        def inverse_proj(x, y):
+            z = (1 - x**2 - y**2)/(1 + x**2 + y**2)
+            return np.array([x*(1+z), y*(1+z), z])
+        
+        dOmega = np.zeros((resol-1,resol-1))
+        i, j = np.meshgrid(np.arange(resol-1), np.arange(resol-1), indexing='ij')
+        p1 = inverse_proj(x_edges[i], y_edges[j])
+        p2 = inverse_proj(x_edges[i+1], y_edges[j])
+        p3 = inverse_proj(x_edges[i], y_edges[j+1])
+        p4 = inverse_proj(x_edges[i+1], y_edges[j+1])
+        area1 = spherical_triangle_area_vectorized(p1, p2, p4)
+        area2 = spherical_triangle_area_vectorized(p1, p3, p4)
+        dOmega = area1 + area2
+
+        H_raw, _, _ = np.histogram2d(
+            idata.x, idata.y, 
+            bins=[x_edges, y_edges], 
+            weights=idata.weight
+        )
+
+        gausigma = self.rc_params['snplot.contour.gaussian.sigma']
+        a = self.rc_params['snplot.contour.gaussian.ratio']
+        kernel = generate_diffusion_kernel(abs(x_edges[1]-x_edges[0]), gausigma)
+        H_smoothed = convolve2d(H_raw, kernel, mode='same', boundary='symm')
+        H_final = (1-a)*H_raw + a*H_smoothed
+        H_final = H_final * (H_raw.sum() / H_final.sum())
+        sum_omega = np.pi * 4/2
+        MRD = H_final/dOmega*sum_omega
+        
+        if contour_colormap.keys().__contains__(self.rc_params['snplot.contour.cmap']):
+            cmap = contour_colormap[self.rc_params['snplot.contour.cmap']]
+        else:
+            cmap = 'jet'
+
+        lim_low, lim_high = self.rc_params['snplot.contour.lim']
+        im = ax.imshow(MRD.T, extent=[-1, 1, -1, 1], 
+                origin='lower', cmap=cmap, interpolation='bilinear', 
+                vmin=lim_low, vmax=lim_high
+                )
+
+        patch = patches.Circle((0, 0), radius=1, transform=ax.transData)
+        im.set_clip_path(patch)
+
+        if self.have_colorbar:
+            fig.colorbar(im, ax=ax, label='MRD', pad=0.1)
+        ax.text(1.01, 0.5, self.rc_params['snplot.contour_x_label'], transform=ax.transAxes, ha='left', va='center')
+        ax.text(0.5, 1.01, self.rc_params['snplot.contour_y_label'], transform=ax.transAxes, ha='center', va='bottom')
+        outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
+        circlep = np.arange(0,2.2*np.pi,0.01*np.pi)
+        circlex = np.sin(circlep)
+        circley = np.cos(circlep)
+        ax.plot(circlex,circley,'k-', linewidth = outercontourwidth)
+        if self.rc_params['snplot.contour_axis_on']:
+            ax.plot([-1,1], [0,0], c = 'white',linestyle= "--", dashes=(5,5), linewidth = outercontourwidth * 0.8)
+            ax.plot([0,0], [-1,1], c = 'white',linestyle= "--", dashes=(5,5), linewidth = outercontourwidth * 0.8)
+        ax.axis('off')
+        self.fig, self.ax = fig, ax
+        if self.plotargs!={}:
+            self.ax = self.plotargs_apply()
+
+class inverse_pole_figure_contour(pole_figure):
+    rc_params = {
+        'figure.figsize': (9, 6),
+        'font.size': 2.5,
+        'snplot.outercontourwidth': 0.15,
+        'snplot.contour_resolution': 20,
+        'snplot.contour.cmap': 'jet',
+        'snplot.contour.lim': (0, 50),
+        'snplot.contour.gaussian.ratio' : 0.1,
+        'snplot.contour.gaussian.sigma' : 0.05
+    }
+
+    def __init__(self, dataset:list, fig_name:str = " ", case_path:str = "./", style:str = 'default', **plotargs):
+        super().__init__(dataset, fig_name, case_path, style, **plotargs)
+        ipf_axis = np.hstack((np.ones((31,1)),np.arange(0,1.001+1/30,1/30)[:31].reshape(31,1),np.ones((31,1))))
+        pts_list = [
+            [0, 0],
+            [(np.pi-2)/np.pi, 0],
+            *[trans_to_xy(calc_ipf(iaxis))[:2] for iaxis in ipf_axis],
+            [1/(1+np.sqrt(3)), 1/(1+np.sqrt(3))],
+            [0, 0]
+        ]
+        self.patch_points = np.array(pts_list).reshape(-1,2)
+
+    def load_plot(self):
+        try:
+            plt.close(self.plt)
+        except (AttributeError, TypeError):
+            pass
+
+        combined_rcp = rcparams_combine(self.style.params, self.rc_params)
+        rcParams.update(rcparams_predeal(combined_rcp,self.rc_params['figure.figsize'][0]))
+        fig, ax = plt.subplots()
+
+        if type(self.dataset) is list:
+            idata = self.dataset[0]
+        else:
+            idata = self.dataset
+        if idata.plottype != 'inverse_pole_figure':
+            raise ValueError('Data type error!')
+
+        verts = [(ipt[0], ipt[1]) for ipt in self.patch_points]
+        outercontourwidth = self.rc_params['snplot.outercontourwidth'] * self.rc_params['figure.figsize'][0]
+        patch = patches.PathPatch(
+            Path(verts, [Path.MOVETO] + [Path.LINETO]*(len(self.patch_points)-2) + [Path.CLOSEPOLY]),
+            facecolor='none',
+            lw=outercontourwidth
+        )
+
+        resol = self.rc_params['snplot.contour_resolution']
+        x_edges = np.linspace(0.0, np.sqrt(2)/(2. + np.sqrt(2)), resol)
+        y_edges = np.linspace(0.0, 1./(1. + np.sqrt(3)), resol)
+        
+        def inverse_proj(x, y):
+            z = (1 - x**2 - y**2)/(1 + x**2 + y**2)
+            return np.array([x*(1+z), y*(1+z), z])
+        
+        dOmega = np.zeros((resol-1,resol-1))
+        i, j = np.meshgrid(np.arange(resol-1), np.arange(resol-1), indexing='ij')
+        p1 = inverse_proj(x_edges[i], y_edges[j])
+        p2 = inverse_proj(x_edges[i+1], y_edges[j])
+        p3 = inverse_proj(x_edges[i], y_edges[j+1])
+        p4 = inverse_proj(x_edges[i+1], y_edges[j+1])
+        area1 = spherical_triangle_area_vectorized(p1, p2, p4)
+        area2 = spherical_triangle_area_vectorized(p1, p3, p4)
+        dOmega = area1 + area2
+
+        H_raw, _, _ = np.histogram2d(
+            idata.x, idata.y, 
+            bins=[x_edges, y_edges], 
+            weights=idata.weight
+        )
+
+        gausigma = self.rc_params['snplot.contour.gaussian.sigma']
+        a = self.rc_params['snplot.contour.gaussian.ratio']
+        kernel = generate_diffusion_kernel(x_edges[1], gausigma)
+        H_smoothed = convolve2d(H_raw, kernel, mode='same', boundary='symm')
+        H_final = (1-a)*H_raw + a*H_smoothed
+        H_final = H_final * (H_raw.sum() / H_final.sum())
+        sum_omega = np.pi * 4/48
+        MRD = H_final/dOmega*sum_omega
+        # non_zero_mrd = MRD[MRD >= 0.01]
+        # print(np.mean(non_zero_mrd))
+
+        if contour_colormap.keys().__contains__(self.rc_params['snplot.contour.cmap']):
+            cmap = contour_colormap[self.rc_params['snplot.contour.cmap']]
+        else:
+            cmap = 'viridis'
+        
+        lim_low, lim_high = self.rc_params['snplot.contour.lim']
+        im = ax.imshow(MRD.T, 
+                extent=[x_edges.min(), x_edges.max(), y_edges.min(), y_edges.max()],
+                origin='lower', 
+                cmap=cmap, interpolation='bilinear', 
+                vmin=lim_low, vmax=lim_high
+                )
+
+        ax.add_patch(patch)
+        im.set_clip_path(patch)
+        if self.have_colorbar:
+            fig.colorbar(im, ax=ax, label='MRD', pad=0.1)
+
+        ax.axis('off')
+        self.fig, self.ax = fig, ax
+        if self.plotargs!={}:
+            self.ax = self.plotargs_apply()
+
+        ax.text(0., 0., "001", ha='right', va='top')
+        ax.text(np.sqrt(2)/(2+np.sqrt(2)), 0., "101", ha='left', va='top')
+        ax.text(1/(1+np.sqrt(3)), 1/(1+np.sqrt(3)), "111", ha='center', va='bottom')
