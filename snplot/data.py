@@ -128,7 +128,7 @@ class eulerdata:
         if weight_ is None:
             self.weight = np.ones(len(self.phi1))/len(self.phi1)
         else:
-            self.weight = np.array(weight_)[0::segment]
+            self.weight = np.array(weight_)[0::segment] / np.sum(np.array(weight_)[0::segment])
         self.rotation = rotation_
         self.label = label
         self.label_pos = label_pos

@@ -31,5 +31,8 @@ property_label = {
     'snplot.contour_y_label': 'Contour y-axis label',
     'snplot.contour_resolution': 'Contour resolution',
     'snplot.contour_axis_on': 'Enable contour axis',
-    'snplot.contour.cmap': 'Contour color map'
+    'snplot.contour.cmap': 'Contour color map',
+    'snplot.contour.lim': 'Contour limits',
+    'snplot.contour.gaussian.sigma' : 'Gaussian dispersion deviation',
+    'snplot.contour.gaussian.ratio' : 'Gaussian dispersion ratio'
 }
